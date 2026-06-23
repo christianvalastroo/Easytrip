@@ -1,8 +1,11 @@
+import { BrowserRouter } from 'react-router-dom'
+import AppRoutes from './routes/AppRoutes'
+
 const App = () => {
   return (
-    <div className='min-h-screen flex items-center justify-center'>
-      <h1 className='text-5xl font-bold text-blue-500'>EasyTrip</h1>
-    </div>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   )
 }
 
