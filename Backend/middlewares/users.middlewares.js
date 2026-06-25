@@ -4,7 +4,7 @@ const validateRegister = (req, res, next) => {
     const { firstName, email, password } = req.body
 
     if (!firstName || !email || !password) {
-        throw new BadRequestException("Nome, email e password sono obbligatori")
+        throw new BadRequestException("First name, email and password are required")
     }
 
     next()

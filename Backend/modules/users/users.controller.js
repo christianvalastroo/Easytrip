@@ -9,7 +9,7 @@ const registerUser = async (req, res, next) => {
         const existingUser = await User.findOne({ email })
 
         if (existingUser) {
-            throw new ConflictException("Email gia registrata")
+            throw new ConflictException("Email already registered")
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
@@ -22,7 +22,7 @@ const registerUser = async (req, res, next) => {
         })
 
         res.status(201).json({
-            message: "Utente registrato con successo",
+            message: "User registered successfully",
             user: {
                 id: user._id,
                 firstName: user.firstName,
