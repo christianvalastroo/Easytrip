@@ -1,6 +1,9 @@
 const bcrypt = require("bcrypt")
+const mongoose = require("mongoose")
 const User = require("./users.schema")
+const BadRequestException = require("../../exceptions/BadRequestException")
 const ConflictException = require("../../exceptions/ConflictException")
+const NotFoundException = require("../../exceptions/NotFoundException")
 
 const registerUser = async (req, res, next) => {
     try {
@@ -35,6 +38,27 @@ const registerUser = async (req, res, next) => {
     }
 }
 
+const getUserById = async (req, res, next) => {
+    try {
+        const { id } = req.params
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            throw new BadRequestException("Invalid user id")
+        }
+
+        const user = await User.findById(id).select("-password")
+
+        if (!user) {
+            throw new NotFoundException("User not found")
+        }
+
+        res.status(200).json(user)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
-    registerUser
+    registerUser,
+    getUserById
 }
