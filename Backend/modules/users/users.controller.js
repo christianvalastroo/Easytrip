@@ -1,6 +1,5 @@
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
-const mongoose = require("mongoose")
 const User = require("./users.schema")
 const BadRequestException = require("../../exceptions/BadRequestException")
 const ConflictException = require("../../exceptions/ConflictException")
@@ -34,26 +33,6 @@ const registerUser = async (req, res, next) => {
                 email: user.email
             }
         })
-    } catch (error) {
-        next(error)
-    }
-}
-
-const getUserById = async (req, res, next) => {
-    try {
-        const { id } = req.params
-
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            throw new BadRequestException("Invalid user id")
-        }
-
-        const user = await User.findById(id).select("-password")
-
-        if (!user) {
-            throw new NotFoundException("User not found")
-        }
-
-        res.status(200).json(user)
     } catch (error) {
         next(error)
     }
@@ -150,7 +129,6 @@ const deleteCurrentUser = async (req, res, next) => {
 module.exports = {
     registerUser,
     loginUser,
-    getUserById,
     getCurrentUser,
     updateCurrentUser,
     deleteCurrentUser
