@@ -96,8 +96,25 @@ const loginUser = async (req, res, next) => {
     }
 }
 
+const deleteCurrentUser = async (req, res, next) => {
+    try {
+        const user = await User.findByIdAndDelete(req.user.id)
+
+        if (!user) {
+            throw new NotFoundException("User not found")
+        }
+
+        res.status(200).json({
+            message: "Account deleted successfully"
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     registerUser,
     loginUser,
-    getUserById
+    getUserById,
+    deleteCurrentUser
 }
