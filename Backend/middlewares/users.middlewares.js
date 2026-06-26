@@ -10,6 +10,17 @@ const validateRegister = (req, res, next) => {
     next()
 }
 
+const validateLogin = (req, res, next) => {
+    const { email, password } = req.body
+
+    if (!email || !password) {
+        throw new BadRequestException("Email and password are required")
+    }
+
+    next()
+}
+
 module.exports = {
-    validateRegister
+    validateRegister,
+    validateLogin
 }
