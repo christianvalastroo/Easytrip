@@ -59,6 +59,20 @@ const getUserById = async (req, res, next) => {
     }
 }
 
+const getCurrentUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id).select("-password")
+
+        if (!user) {
+            throw new NotFoundException("User not found")
+        }
+
+        res.status(200).json(user)
+    } catch (error) {
+        next(error)
+    }
+}
+
 const loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body
@@ -116,5 +130,6 @@ module.exports = {
     registerUser,
     loginUser,
     getUserById,
+    getCurrentUser,
     deleteCurrentUser
 }
