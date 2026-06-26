@@ -20,7 +20,25 @@ const validateLogin = (req, res, next) => {
     next()
 }
 
+const validateUpdateUser = (req, res, next) => {
+    const allowedFields = ["firstName", "lastName"]
+    const fields = Object.keys(req.body)
+
+    if (fields.length === 0) {
+        throw new BadRequestException("At least one field is required")
+    }
+
+    const hasInvalidField = fields.some((field) => !allowedFields.includes(field))
+
+    if (hasInvalidField) {
+        throw new BadRequestException("Only first name and last name can be updated")
+    }
+
+    next()
+}
+
 module.exports = {
     validateRegister,
-    validateLogin
+    validateLogin,
+    validateUpdateUser
 }
