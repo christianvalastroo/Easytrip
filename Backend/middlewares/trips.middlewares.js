@@ -1,3 +1,4 @@
+const mongoose = require("mongoose")
 const BadRequestException = require("../exceptions/BadRequestException")
 
 const allowedTripFields = ["title", "destination", "startDate", "endDate", "budget", "notes"]
@@ -28,7 +29,16 @@ const validateUpdateTrip = (req, res, next) => {
     next()
 }
 
+const validateTripId = (req, res, next) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        throw new BadRequestException("Invalid trip id")
+    }
+
+    next()
+}
+
 module.exports = {
     validateCreateTrip,
-    validateUpdateTrip
+    validateUpdateTrip,
+    validateTripId
 }
