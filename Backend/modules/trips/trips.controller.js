@@ -71,9 +71,29 @@ const updateTrip = async (req, res, next) => {
     }
 }
 
+const deleteTrip = async (req, res, next) => {
+    try {
+        const trip = await Trip.findOneAndDelete({
+            _id: req.params.id,
+            owner: req.user.id
+        })
+
+        if (!trip) {
+            throw new NotFoundException("Trip not found")
+        }
+
+        res.status(200).json({
+            message: "Trip deleted successfully"
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     createTrip,
     getTrips,
     getTripById,
-    updateTrip
+    updateTrip,
+    deleteTrip
 }
