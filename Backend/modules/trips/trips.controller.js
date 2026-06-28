@@ -1,4 +1,5 @@
 const Trip = require("./trips.schema")
+const NotFoundException = require("../../exceptions/NotFoundException")
 
 const createTrip = async (req, res, next) => {
     try {
@@ -26,7 +27,25 @@ const getTrips = async (req, res, next) => {
     }
 }
 
+const getTripById = async (req, res, next) => {
+    try {
+        const trip = await Trip.findOne({
+            _id: req.params.id,
+            owner: req.user.id
+        })
+
+        if (!trip) {
+            throw new NotFoundException("Trip not found")
+        }
+
+        res.status(200).json(trip)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     createTrip,
-    getTrips
+    getTrips,
+    getTripById
 }
