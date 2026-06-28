@@ -16,6 +16,17 @@ const createTrip = async (req, res, next) => {
     }
 }
 
+const getTrips = async (req, res, next) => {
+    try {
+        const trips = await Trip.find({ owner: req.user.id }).sort({ startDate: 1 })
+
+        res.status(200).json(trips)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
-    createTrip
+    createTrip,
+    getTrips
 }
