@@ -16,6 +16,20 @@ const createActivity = async (req, res, next) => {
     }
 }
 
+const getActivitiesByTrip = async (req, res, next) => {
+    try {
+        const activities = await Activity.find({
+            trip: req.params.tripId,
+            owner: req.user.id
+        }).sort({ date: 1 })
+
+        res.status(200).json(activities)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
-    createActivity
+    createActivity,
+    getActivitiesByTrip
 }
