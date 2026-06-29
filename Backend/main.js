@@ -7,6 +7,7 @@ const errorHandler = require("./middlewares/errorHandler")
 const authRoutes = require("./modules/auth/auth.routes")
 const usersRoutes = require("./modules/users/users.routes")
 const tripsRoutes = require("./modules/trips/trips.routes")
+const activitiesRoutes = require("./modules/activities/activities.routes")
 
 const app = express()
 const PORT = process.env.PORT
@@ -17,6 +18,7 @@ app.use(cors())
 app.use("/api/auth", authRoutes)
 app.use("/api/users", usersRoutes)
 app.use("/api/trips", tripsRoutes)
+app.use("/api/activities", activitiesRoutes)
 
 app.get("/", (req, res) => {
     res.send("EasyTrip API online")
