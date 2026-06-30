@@ -1,4 +1,6 @@
 const User = require("./users.schema")
+const Trip = require("../trips/trips.schema")
+const Activity = require("../activities/activities.schema")
 const NotFoundException = require("../../exceptions/NotFoundException")
 
 const getCurrentUser = async (req, res, next) => {
@@ -38,11 +40,15 @@ const updateCurrentUser = async (req, res, next) => {
 
 const deleteCurrentUser = async (req, res, next) => {
     try {
-        const user = await User.findByIdAndDelete(req.user.id)
+        const user = await User.findById(req.user.id)
 
         if (!user) {
             throw new NotFoundException("User not found")
         }
+
+        await Activity.deleteMany({ owner: req.user.id })
+        await Trip.deleteMany({ owner: req.user.id })
+        await User.findByIdAndDelete(req.user.id)
 
         res.status(200).json({
             message: "Account deleted successfully"
