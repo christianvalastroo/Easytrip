@@ -1,3 +1,4 @@
+const mongoose = require("mongoose")
 const BadRequestException = require("../exceptions/BadRequestException")
 
 const allowedActivityFields = ["title", "description", "date", "location", "cost", "type"]
@@ -27,7 +28,16 @@ const validateUpdateActivity = (req, res, next) => {
     next()
 }
 
+const validateActivityId = (req, res, next) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+        throw new BadRequestException("Invalid activity id")
+    }
+
+    next()
+}
+
 module.exports = {
     validateCreateActivity,
-    validateUpdateActivity
+    validateUpdateActivity,
+    validateActivityId
 }
