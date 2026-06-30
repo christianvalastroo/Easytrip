@@ -1,10 +1,25 @@
 const BadRequestException = require("../exceptions/BadRequestException")
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const minPasswordLength = 8
+
 const validateRegister = (req, res, next) => {
     const { firstName, email, password } = req.body
 
     if (!firstName || !email || !password) {
         throw new BadRequestException("First name, email and password are required")
+    }
+
+    if (typeof email !== "string" || typeof password !== "string") {
+        throw new BadRequestException("Email and password must be valid text")
+    }
+
+    if (!emailRegex.test(email)) {
+        throw new BadRequestException("Email must be valid")
+    }
+
+    if (password.length < minPasswordLength) {
+        throw new BadRequestException("Password must be at least 8 characters long")
     }
 
     next()
@@ -15,6 +30,14 @@ const validateLogin = (req, res, next) => {
 
     if (!email || !password) {
         throw new BadRequestException("Email and password are required")
+    }
+
+    if (typeof email !== "string" || typeof password !== "string") {
+        throw new BadRequestException("Email and password must be valid text")
+    }
+
+    if (!emailRegex.test(email)) {
+        throw new BadRequestException("Email must be valid")
     }
 
     next()
