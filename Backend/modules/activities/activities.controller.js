@@ -1,6 +1,15 @@
 const Activity = require("./activities.schema")
 const Trip = require("../trips/trips.schema")
 const NotFoundException = require("../../exceptions/NotFoundException")
+const BadRequestException = require("../../exceptions/BadRequestException")
+
+const validateActivityWithinTripDates = (activityDate, trip) => {
+    const date = new Date(activityDate)
+
+    if (date < new Date(trip.startDate) || date > new Date(trip.endDate)) {
+        throw new BadRequestException("Activity date must be within trip dates")
+    }
+}
 
 const createActivity = async (req, res, next) => {
     try {
@@ -12,6 +21,8 @@ const createActivity = async (req, res, next) => {
         if (!trip) {
             throw new NotFoundException("Trip not found")
         }
+
+        validateActivityWithinTripDates(req.body.date, trip)
 
         const activity = await Activity.create({
             ...req.body,
@@ -59,21 +70,30 @@ const getActivityById = async (req, res, next) => {
 
 const updateActivity = async (req, res, next) => {
     try {
-        const activity = await Activity.findOneAndUpdate(
-            {
-                _id: req.params.id,
-                owner: req.user.id
-            },
-            req.body,
-            {
-                new: true,
-                runValidators: true
-            }
-        )
+        const activity = await Activity.findOne({
+            _id: req.params.id,
+            owner: req.user.id
+        })
 
         if (!activity) {
             throw new NotFoundException("Activity not found")
         }
+
+        if (req.body.date) {
+            const trip = await Trip.findOne({
+                _id: activity.trip,
+                owner: req.user.id
+            })
+
+            if (!trip) {
+                throw new NotFoundException("Trip not found")
+            }
+
+            validateActivityWithinTripDates(req.body.date, trip)
+        }
+
+        Object.assign(activity, req.body)
+        await activity.save()
 
         res.status(200).json({
             message: "Activity updated successfully",

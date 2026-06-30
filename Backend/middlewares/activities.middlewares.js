@@ -3,6 +3,22 @@ const BadRequestException = require("../exceptions/BadRequestException")
 
 const allowedActivityFields = ["title", "description", "date", "location", "cost", "type"]
 
+const isValidDate = (date) => {
+    return !Number.isNaN(new Date(date).getTime())
+}
+
+const validateActivityDate = (date) => {
+    if (date !== undefined && !isValidDate(date)) {
+        throw new BadRequestException("Activity date must be a valid date")
+    }
+}
+
+const validateCost = (cost) => {
+    if (cost !== undefined && cost < 0) {
+        throw new BadRequestException("Cost cannot be negative")
+    }
+}
+
 const validateCreateActivity = (req, res, next) => {
     const { title, date, trip } = req.body
 
@@ -13,6 +29,9 @@ const validateCreateActivity = (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(trip)) {
         throw new BadRequestException("Invalid trip id")
     }
+
+    validateActivityDate(date)
+    validateCost(req.body.cost)
 
     next()
 }
@@ -29,6 +48,9 @@ const validateUpdateActivity = (req, res, next) => {
     if (hasInvalidField) {
         throw new BadRequestException("Only title, description, date, location, cost and type can be updated")
     }
+
+    validateActivityDate(req.body.date)
+    validateCost(req.body.cost)
 
     next()
 }

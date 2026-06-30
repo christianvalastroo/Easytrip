@@ -21,7 +21,8 @@ const activitySchema = new mongoose.Schema(
         },
         cost: {
             type: Number,
-            default: 0
+            default: 0,
+            min: 0
         },
         type: {
             type: String,
