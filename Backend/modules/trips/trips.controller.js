@@ -1,4 +1,5 @@
 const Trip = require("./trips.schema")
+const Activity = require("../activities/activities.schema")
 const NotFoundException = require("../../exceptions/NotFoundException")
 
 const createTrip = async (req, res, next) => {
@@ -81,6 +82,11 @@ const deleteTrip = async (req, res, next) => {
         if (!trip) {
             throw new NotFoundException("Trip not found")
         }
+
+        await Activity.deleteMany({
+            trip: req.params.id,
+            owner: req.user.id
+        })
 
         res.status(200).json({
             message: "Trip deleted successfully"
