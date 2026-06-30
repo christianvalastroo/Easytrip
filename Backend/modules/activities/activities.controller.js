@@ -1,8 +1,18 @@
 const Activity = require("./activities.schema")
+const Trip = require("../trips/trips.schema")
 const NotFoundException = require("../../exceptions/NotFoundException")
 
 const createActivity = async (req, res, next) => {
     try {
+        const trip = await Trip.findOne({
+            _id: req.body.trip,
+            owner: req.user.id
+        })
+
+        if (!trip) {
+            throw new NotFoundException("Trip not found")
+        }
+
         const activity = await Activity.create({
             ...req.body,
             owner: req.user.id
