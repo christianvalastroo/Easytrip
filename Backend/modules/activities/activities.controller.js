@@ -74,9 +74,29 @@ const updateActivity = async (req, res, next) => {
     }
 }
 
+const deleteActivity = async (req, res, next) => {
+    try {
+        const activity = await Activity.findOneAndDelete({
+            _id: req.params.id,
+            owner: req.user.id
+        })
+
+        if (!activity) {
+            throw new NotFoundException("Activity not found")
+        }
+
+        res.status(200).json({
+            message: "Activity deleted successfully"
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     createActivity,
     getActivitiesByTrip,
     getActivityById,
-    updateActivity
+    updateActivity,
+    deleteActivity
 }
