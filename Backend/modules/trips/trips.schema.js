@@ -22,7 +22,8 @@ const tripSchema = new mongoose.Schema(
         },
         budget: {
             type: Number,
-            default: 0
+            default: 0,
+            min: 0
         },
         notes: {
             type: String,

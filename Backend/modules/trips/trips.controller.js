@@ -1,6 +1,13 @@
 const Trip = require("./trips.schema")
 const Activity = require("../activities/activities.schema")
 const NotFoundException = require("../../exceptions/NotFoundException")
+const BadRequestException = require("../../exceptions/BadRequestException")
+
+const validateTripDateRange = (startDate, endDate) => {
+    if (new Date(endDate) < new Date(startDate)) {
+        throw new BadRequestException("End date cannot be before start date")
+    }
+}
 
 const createTrip = async (req, res, next) => {
     try {
@@ -47,21 +54,35 @@ const getTripById = async (req, res, next) => {
 
 const updateTrip = async (req, res, next) => {
     try {
-        const trip = await Trip.findOneAndUpdate(
-            {
-                _id: req.params.id,
-                owner: req.user.id
-            },
-            req.body,
-            {
-                new: true,
-                runValidators: true
-            }
-        )
+        const trip = await Trip.findOne({
+            _id: req.params.id,
+            owner: req.user.id
+        })
 
         if (!trip) {
             throw new NotFoundException("Trip not found")
         }
+
+        const nextStartDate = req.body.startDate || trip.startDate
+        const nextEndDate = req.body.endDate || trip.endDate
+
+        validateTripDateRange(nextStartDate, nextEndDate)
+
+        const activitiesOutsideDateRange = await Activity.countDocuments({
+            trip: trip._id,
+            owner: req.user.id,
+            $or: [
+                { date: { $lt: nextStartDate } },
+                { date: { $gt: nextEndDate } }
+            ]
+        })
+
+        if (activitiesOutsideDateRange > 0) {
+            throw new BadRequestException("Trip dates cannot exclude existing activities")
+        }
+
+        Object.assign(trip, req.body)
+        await trip.save()
 
         res.status(200).json({
             message: "Trip updated successfully",
