@@ -47,8 +47,36 @@ const getActivityById = async (req, res, next) => {
     }
 }
 
+const updateActivity = async (req, res, next) => {
+    try {
+        const activity = await Activity.findOneAndUpdate(
+            {
+                _id: req.params.id,
+                owner: req.user.id
+            },
+            req.body,
+            {
+                new: true,
+                runValidators: true
+            }
+        )
+
+        if (!activity) {
+            throw new NotFoundException("Activity not found")
+        }
+
+        res.status(200).json({
+            message: "Activity updated successfully",
+            activity
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     createActivity,
     getActivitiesByTrip,
-    getActivityById
+    getActivityById,
+    updateActivity
 }
