@@ -9,6 +9,11 @@ const validateCreateActivity = (req, res, next) => {
     if (!title || !date || !trip) {
         throw new BadRequestException("Title, date and trip are required")
     }
+
+    if (!mongoose.Types.ObjectId.isValid(trip)) {
+        throw new BadRequestException("Invalid trip id")
+    }
+
     next()
 }
 
