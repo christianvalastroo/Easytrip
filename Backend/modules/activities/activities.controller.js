@@ -1,4 +1,5 @@
 const Activity = require("./activities.schema")
+const NotFoundException = require("../../exceptions/NotFoundException")
 
 const createActivity = async (req, res, next) => {
     try {
@@ -29,7 +30,25 @@ const getActivitiesByTrip = async (req, res, next) => {
     }
 }
 
+const getActivityById = async (req, res, next) => {
+    try {
+        const activity = await Activity.findOne({
+            _id: req.params.id,
+            owner: req.user.id
+        })
+
+        if (!activity) {
+            throw new NotFoundException("Activity not found")
+        }
+
+        res.status(200).json(activity)
+    } catch (error) {
+        next(error)
+    }
+}
+
 module.exports = {
     createActivity,
-    getActivitiesByTrip
+    getActivitiesByTrip,
+    getActivityById
 }
