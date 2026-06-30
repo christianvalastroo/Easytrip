@@ -36,8 +36,17 @@ const validateActivityId = (req, res, next) => {
     next()
 }
 
+const validateActivityTripId = (req, res, next) => {
+    if (!mongoose.Types.ObjectId.isValid(req.params.tripId)) {
+        throw new BadRequestException("Invalid trip id")
+    }
+
+    next()
+}
+
 module.exports = {
     validateCreateActivity,
     validateUpdateActivity,
-    validateActivityId
+    validateActivityId,
+    validateActivityTripId
 }
