@@ -1,65 +1,106 @@
-import { useState } from 'react'
-import { Link, NavLink } from 'react-router-dom'
-import easyTripLogo from '../../assets/easytrip-logo.png'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [token, setToken] = useState(() => localStorage.getItem('token'))
+    const navigate = useNavigate()
 
-    const navLinks = [
-        { path: '/', label: 'Home' },
-        { path: '/dashboard', label: 'Dashboard' },
+    useEffect(() => {
+        const updateToken = () => {
+            setToken(localStorage.getItem('token'))
+        }
+
+        window.addEventListener('auth-change', updateToken)
+        window.addEventListener('storage', updateToken)
+
+        return () => {
+            window.removeEventListener('auth-change', updateToken)
+            window.removeEventListener('storage', updateToken)
+        }
+    }, [])
+
+    const navLinks = []
+
+    const mobilePrivateLinks = [
+        { path: '/dashboard', label: 'My trips' },
+        { path: '/dashboard', label: 'Activities' },
+        { path: '/dashboard', label: 'Profile' },
+        { path: '/dashboard', label: 'Settings' },
     ]
 
+    const handleLogout = () => {
+        localStorage.removeItem('token')
+        setToken(null)
+        setIsMenuOpen(false)
+        navigate('/login')
+    }
+
     return (
-        <header className='sticky top-0 z-50 border-b border-slate-200 bg-white'>
-            <nav className='flex items-center justify-between px-4 py-3 sm:px-6 lg:px-10'>
+        <header className='sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 shadow-lg shadow-slate-950/20 backdrop-blur-xl'>
+            <nav className='mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8'>
                 <Link
                     to='/'
-                    className='flex items-center'
+                    className='flex cursor-pointer items-center gap-3'
                     onClick={() => setIsMenuOpen(false)}
                 >
-                    <img
-                        src={easyTripLogo}
-                        alt='EasyTrip logo'
-                        className='h-10 w-auto object-contain'
-                    />
+                    <span className='flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-lg font-black text-slate-950 shadow-lg shadow-cyan-500/25'>
+                        ✈
+                    </span>
+                    <span className='text-xl font-black tracking-tight text-white'>
+                        EasyTrip
+                    </span>
                 </Link>
 
-                <div className='hidden items-center gap-8 md:flex'>
-                    {navLinks.map((link) => (
-                        <NavLink
-                            key={link.path}
-                            to={link.path}
-                            className={({ isActive }) =>
-                                isActive
-                                    ? 'text-sm font-semibold text-blue-600'
-                                    : 'text-sm font-medium text-slate-700 hover:text-blue-600'
-                            }
+                {navLinks.length > 0 && (
+                    <div className='hidden rounded-full border border-white/10 bg-white/10 px-2 py-1 md:flex md:items-center md:gap-1'>
+                        {navLinks.map((link) => (
+                            <NavLink
+                                key={link.path}
+                                to={link.path}
+                                className={({ isActive }) =>
+                                    isActive
+                                        ? 'rounded-full bg-white/15 px-4 py-2 text-sm font-bold text-cyan-200 shadow-sm'
+                                        : 'rounded-full px-4 py-2 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
+                                }
+                            >
+                                {link.label}
+                            </NavLink>
+                        ))}
+                    </div>
+                )}
+
+                {token ? (
+                    <div className='hidden items-center gap-5 md:flex'>
+                        <button
+                            type='button'
+                            onClick={handleLogout}
+                            className='cursor-pointer rounded-full border border-white/15 bg-white/10 px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/15'
                         >
-                            {link.label}
-                        </NavLink>
-                    ))}
-                </div>
+                            Logout
+                        </button>
+                    </div>
+                ) : (
+                    <div className='hidden items-center gap-5 md:flex'>
+                        <Link
+                            to='/login'
+                            className='cursor-pointer text-sm font-bold text-cyan-50/85 transition hover:text-white'
+                        >
+                            Login
+                        </Link>
 
-                <div className='hidden items-center gap-5 md:flex'>
-                    <Link
-                        to='/login'
-                        className='text-sm font-medium text-slate-700 hover:text-blue-600'
-                    >
-                        Login
-                    </Link>
-
-                    <Link
-                        to='/register'
-                        className='rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700'
-                    >
-                        Register
-                    </Link>
-                </div>
+                        <Link
+                            to='/register'
+                            className='cursor-pointer rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-cyan-500/25'
+                        >
+                            Sign up
+                        </Link>
+                    </div>
+                )}
 
                 <button
                     type='button'
-                    className='flex h-10 w-10 items-center justify-center text-slate-700 md:hidden'
+                    className='flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-white md:hidden'
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                     aria-label='Toggle navigation menu'
                     aria-expanded={isMenuOpen}
@@ -84,38 +125,50 @@ const Navbar = () => {
             </nav>
 
             {isMenuOpen && (
-                <div className='border-t border-slate-200 bg-white px-4 py-4 md:hidden'>
+                <div className='border-t border-white/10 bg-slate-950/95 px-4 py-4 shadow-xl shadow-slate-950/30 md:hidden'>
                     <div className='flex flex-col gap-4'>
-                        {navLinks.map((link) => (
+                        {(token ? mobilePrivateLinks : navLinks).map((link) => (
                             <NavLink
-                                key={link.path}
+                                key={link.label}
                                 to={link.path}
                                 onClick={() => setIsMenuOpen(false)}
                                 className={({ isActive }) =>
                                     isActive
-                                        ? 'text-sm font-semibold text-blue-600'
-                                        : 'text-sm font-medium text-slate-700'
+                                        ? 'rounded-xl bg-white/10 px-3 py-2 text-sm font-bold text-cyan-200'
+                                        : 'rounded-xl px-3 py-2 text-sm font-semibold text-cyan-50/85'
                                 }
                             >
                                 {link.label}
                             </NavLink>
                         ))}
 
-                        <Link
-                            to='/login'
-                            onClick={() => setIsMenuOpen(false)}
-                            className='text-sm font-medium text-slate-700'
-                        >
-                            Login
-                        </Link>
+                        {token ? (
+                            <button
+                                type='button'
+                                onClick={handleLogout}
+                                className='cursor-pointer rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-center text-sm font-bold text-white'
+                            >
+                                Logout
+                            </button>
+                        ) : (
+                            <>
+                                <Link
+                                    to='/login'
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className='cursor-pointer rounded-xl px-3 py-2 text-sm font-semibold text-cyan-50/85'
+                                >
+                                    Login
+                                </Link>
 
-                        <Link
-                            to='/register'
-                            onClick={() => setIsMenuOpen(false)}
-                            className='rounded-lg bg-blue-600 px-4 py-2 text-center text-sm font-semibold text-white'
-                        >
-                            Register
-                        </Link>
+                                <Link
+                                    to='/register'
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className='cursor-pointer rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-4 py-2.5 text-center text-sm font-bold text-slate-950'
+                                >
+                                    Sign up
+                                </Link>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
