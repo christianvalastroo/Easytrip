@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
     const [token, setToken] = useState(() => localStorage.getItem('token'))
+    const [user, setUser] = useState(null)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -20,6 +24,36 @@ const Navbar = () => {
         }
     }, [])
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            if (!token) {
+                setUser(null)
+                return
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users/me`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+
+                const responseText = await response.text()
+                const data = responseText ? JSON.parse(responseText) : null
+
+                if (!response.ok) {
+                    throw new Error(data?.message || 'User not available')
+                }
+
+                setUser(data)
+            } catch {
+                setUser(null)
+            }
+        }
+
+        fetchUser()
+    }, [token])
+
     const navLinks = []
 
     const mobilePrivateLinks = [
@@ -32,9 +66,14 @@ const Navbar = () => {
     const handleLogout = () => {
         localStorage.removeItem('token')
         setToken(null)
+        setUser(null)
         setIsMenuOpen(false)
+        setIsProfileMenuOpen(false)
+        window.dispatchEvent(new Event('auth-change'))
         navigate('/login')
     }
+
+    const userInitial = user?.firstName?.charAt(0).toUpperCase() || user?.email?.charAt(0).toUpperCase() || 'U'
 
     return (
         <header className='sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 shadow-lg shadow-slate-950/20 backdrop-blur-xl'>
@@ -71,14 +110,53 @@ const Navbar = () => {
                 )}
 
                 {token ? (
-                    <div className='hidden items-center gap-5 md:flex'>
+                    <div className='relative hidden items-center gap-5 md:flex'>
                         <button
                             type='button'
-                            onClick={handleLogout}
-                            className='cursor-pointer rounded-full border border-white/15 bg-white/10 px-5 py-2.5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/15'
+                            onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                            className='flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950 shadow-lg shadow-cyan-500/25 transition hover:-translate-y-0.5'
+                            aria-label='Open user menu'
+                            aria-expanded={isProfileMenuOpen}
                         >
-                            Logout
+                            {userInitial}
                         </button>
+
+                        {isProfileMenuOpen && (
+                            <div className='absolute right-0 top-14 w-64 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-slate-950/40 backdrop-blur-xl'>
+                                <div className='border-b border-white/10 px-4 py-3'>
+                                    <p className='text-sm font-black text-white'>
+                                        {user?.firstName || 'EasyTrip user'}
+                                    </p>
+                                    <p className='mt-1 truncate text-xs font-medium text-slate-400'>
+                                        {user?.email || 'Account'}
+                                    </p>
+                                </div>
+
+                                <NavLink
+                                    to='/dashboard'
+                                    onClick={() => setIsProfileMenuOpen(false)}
+                                    className='mt-2 block rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
+                                >
+                                    Profile
+                                </NavLink>
+
+                                <NavLink
+                                    to='/dashboard'
+                                    onClick={() => setIsProfileMenuOpen(false)}
+                                    className='block rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
+                                >
+                                    Settings
+                                </NavLink>
+
+                                <button
+                                    type='button'
+                                    onClick={handleLogout}
+                                    className='mt-2 w-full cursor-pointer rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-left text-sm font-bold text-white transition hover:bg-white/15'
+                                >
+                                    Logout
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className='hidden items-center gap-5 md:flex'>
@@ -143,13 +221,29 @@ const Navbar = () => {
                         ))}
 
                         {token ? (
-                            <button
-                                type='button'
-                                onClick={handleLogout}
-                                className='cursor-pointer rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-center text-sm font-bold text-white'
-                            >
-                                Logout
-                            </button>
+                            <>
+                                <div className='flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-3'>
+                                    <div className='flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950'>
+                                        {userInitial}
+                                    </div>
+                                    <div className='min-w-0'>
+                                        <p className='truncate text-sm font-black text-white'>
+                                            {user?.firstName || 'EasyTrip user'}
+                                        </p>
+                                        <p className='truncate text-xs font-medium text-slate-400'>
+                                            {user?.email || 'Account'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type='button'
+                                    onClick={handleLogout}
+                                    className='cursor-pointer rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-center text-sm font-bold text-white'
+                                >
+                                    Logout
+                                </button>
+                            </>
                         ) : (
                             <>
                                 <Link
