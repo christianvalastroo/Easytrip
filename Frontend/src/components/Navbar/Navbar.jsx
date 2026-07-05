@@ -1,4 +1,14 @@
 import { useEffect, useState } from 'react'
+import {
+    Activity,
+    LogOut,
+    Map,
+    Menu,
+    Plane,
+    Settings,
+    UserRound,
+    X,
+} from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { API_URL } from '../../config/api'
 
@@ -56,10 +66,10 @@ const Navbar = () => {
     const navLinks = []
 
     const mobilePrivateLinks = [
-        { path: '/dashboard', label: 'My trips' },
-        { path: '/dashboard', label: 'Activities' },
-        { path: '/dashboard', label: 'Profile' },
-        { path: '/dashboard', label: 'Settings' },
+        { path: '/dashboard', label: 'My trips', icon: Map },
+        { path: '/dashboard', label: 'Activities', icon: Activity },
+        { path: '/dashboard', label: 'Profile', icon: UserRound },
+        { path: '/dashboard', label: 'Settings', icon: Settings },
     ]
 
     const handleLogout = () => {
@@ -83,7 +93,7 @@ const Navbar = () => {
                     onClick={() => setIsMenuOpen(false)}
                 >
                     <span className='flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-lg font-black text-slate-950 shadow-lg shadow-cyan-500/25'>
-                        ✈
+                        <Plane size={20} />
                     </span>
                     <span className='text-xl font-black tracking-tight text-white'>
                         EasyTrip
@@ -134,24 +144,27 @@ const Navbar = () => {
                                 <NavLink
                                     to='/dashboard'
                                     onClick={() => setIsProfileMenuOpen(false)}
-                                    className='mt-2 block rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
+                                    className='mt-2 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
                                 >
+                                    <UserRound size={16} />
                                     Profile
                                 </NavLink>
 
                                 <NavLink
                                     to='/dashboard'
                                     onClick={() => setIsProfileMenuOpen(false)}
-                                    className='block rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
+                                    className='flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
                                 >
+                                    <Settings size={16} />
                                     Settings
                                 </NavLink>
 
                                 <button
                                     type='button'
                                     onClick={handleLogout}
-                                    className='mt-2 w-full cursor-pointer rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-left text-sm font-bold text-white transition hover:bg-white/15'
+                                    className='mt-2 flex w-full cursor-pointer items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-left text-sm font-bold text-white transition hover:bg-white/15'
                                 >
+                                    <LogOut size={16} />
                                     Logout
                                 </button>
                             </div>
@@ -182,22 +195,7 @@ const Navbar = () => {
                     aria-label='Toggle navigation menu'
                     aria-expanded={isMenuOpen}
                 >
-                    <span className='relative h-6 w-6'>
-                        <span
-                            className={`absolute left-0 top-1/2 h-0.5 w-6 -translate-y-1/2 rounded bg-current transition-all duration-300 ${isMenuOpen ? 'rotate-45' : '-translate-y-2'
-                                }`}
-                        ></span>
-
-                        <span
-                            className={`absolute left-0 top-1/2 h-0.5 w-6 translate-y-[-40%] rounded bg-current transition-all duration-300 ${isMenuOpen ? 'opacity-0' : ''
-                                }`}
-                        ></span>
-
-                        <span
-                            className={`absolute left-0 top-1/2 h-0.5 w-6 -translate-y-1/2 rounded bg-current transition-all duration-300 ${isMenuOpen ? '-rotate-45' : 'translate-y-2'
-                                }`}
-                        ></span>
-                    </span>
+                    {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
                 </button>
             </nav>
 
@@ -205,18 +203,11 @@ const Navbar = () => {
                 <div className='border-t border-white/10 bg-slate-950/95 px-4 py-4 shadow-xl shadow-slate-950/30 md:hidden'>
                     <div className='flex flex-col gap-4'>
                         {(token ? mobilePrivateLinks : navLinks).map((link) => (
-                            <NavLink
+                            <MobileNavLink
                                 key={link.label}
-                                to={link.path}
+                                link={link}
                                 onClick={() => setIsMenuOpen(false)}
-                                className={({ isActive }) =>
-                                    isActive
-                                        ? 'rounded-xl bg-white/10 px-3 py-2 text-sm font-bold text-cyan-200'
-                                        : 'rounded-xl px-3 py-2 text-sm font-semibold text-cyan-50/85'
-                                }
-                            >
-                                {link.label}
-                            </NavLink>
+                            />
                         ))}
 
                         {token ? (
@@ -238,8 +229,9 @@ const Navbar = () => {
                                 <button
                                     type='button'
                                     onClick={handleLogout}
-                                    className='cursor-pointer rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-center text-sm font-bold text-white'
+                                    className='flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-center text-sm font-bold text-white'
                                 >
+                                    <LogOut size={16} />
                                     Logout
                                 </button>
                             </>
@@ -266,6 +258,26 @@ const Navbar = () => {
                 </div>
             )}
         </header>
+    )
+}
+
+const MobileNavLink = ({ link, onClick }) => {
+    const Icon = link.icon
+
+    return (
+        <NavLink
+            to={link.path}
+            onClick={onClick}
+            className={({ isActive }) =>
+                `flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${isActive
+                    ? 'bg-white/10 font-bold text-cyan-200'
+                    : 'font-semibold text-cyan-50/85'
+                }`
+            }
+        >
+            {Icon && <Icon size={17} />}
+            {link.label}
+        </NavLink>
     )
 }
 
