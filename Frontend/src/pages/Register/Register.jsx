@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.png'
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api'
+import { API_URL } from '../../config/api'
 
 const Register = () => {
   const navigate = useNavigate()
