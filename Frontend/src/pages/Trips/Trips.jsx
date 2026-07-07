@@ -98,8 +98,8 @@ const Trips = () => {
 
             <button
               type='button'
-              disabled
-              className='inline-flex w-fit cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 opacity-70 shadow-xl shadow-cyan-500/25'
+              onClick={() => navigate('/trips/new')}
+              className='inline-flex w-fit cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition-all duration-300 hover:-translate-y-0.5'
             >
               <Plus size={18} />
               New trip
@@ -126,11 +126,10 @@ const Trips = () => {
                   key={filter}
                   type='button'
                   onClick={() => setActiveFilter(filter)}
-                  className={`cursor-pointer rounded-xl px-3 py-2 text-sm font-bold capitalize transition-all duration-300 ${
-                    activeFilter === filter
+                  className={`cursor-pointer rounded-xl px-3 py-2 text-sm font-bold capitalize transition-all duration-300 ${activeFilter === filter
                       ? 'bg-slate-800 text-cyan-200'
                       : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                  }`}
+                    }`}
                 >
                   {filter}
                 </button>
@@ -204,11 +203,10 @@ const TripCard = ({ trip }) => {
 const TripsMessage = ({ message, isError = false }) => {
   return (
     <div
-      className={`rounded-3xl border p-6 text-sm font-semibold shadow-xl ${
-        isError
+      className={`rounded-3xl border p-6 text-sm font-semibold shadow-xl ${isError
           ? 'border-red-400/30 bg-red-500/10 text-red-200'
           : 'border-white/10 bg-slate-900/70 text-slate-300'
-      }`}
+        }`}
     >
       {message}
     </div>

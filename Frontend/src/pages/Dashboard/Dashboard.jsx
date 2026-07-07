@@ -145,6 +145,7 @@ const Dashboard = () => {
           ) : (
             <>
               <DashboardHero
+                onCreateTrip={() => navigate('/trips/new')}
                 onOpenTrips={() => navigate('/trips')}
                 userName={user?.firstName}
               />
@@ -214,7 +215,7 @@ const Dashboard = () => {
   )
 }
 
-const DashboardHero = ({ onOpenTrips, userName }) => {
+const DashboardHero = ({ onCreateTrip, onOpenTrips, userName }) => {
   return (
     <section className='relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900 p-5 text-white shadow-2xl shadow-slate-950/50 sm:p-7 lg:min-h-[21rem]'>
       <img
@@ -242,8 +243,8 @@ const DashboardHero = ({ onOpenTrips, userName }) => {
         <div className='mt-6 flex flex-col gap-3 sm:flex-row'>
           <button
             type='button'
-            disabled
-            className='inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 opacity-70 shadow-xl shadow-cyan-500/25'
+            onClick={onCreateTrip}
+            className='inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition-all duration-300 hover:-translate-y-0.5'
           >
             <Plus size={18} />
             New trip
@@ -327,11 +328,10 @@ const SidebarLink = ({ item, onClick }) => {
     <button
       type='button'
       onClick={onClick}
-      className={`flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold transition-all duration-300 ${
-        item.isActive
+      className={`flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold transition-all duration-300 ${item.isActive
           ? 'border border-white/10 bg-slate-800 text-cyan-200'
           : 'border border-transparent text-slate-300 hover:border-cyan-400/30 hover:bg-white/10 hover:text-white'
-      }`}
+        }`}
     >
       <span className='flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 text-xs'>
         <Icon size={16} />
@@ -484,11 +484,10 @@ const EmptyTrips = () => {
 const DashboardMessage = ({ message, isError = false }) => {
   return (
     <div
-      className={`rounded-3xl border p-6 text-sm font-semibold shadow-xl ${
-        isError
+      className={`rounded-3xl border p-6 text-sm font-semibold shadow-xl ${isError
           ? 'border-red-400/30 bg-red-500/10 text-red-200'
           : 'border-white/10 bg-slate-900/70 text-slate-300'
-      }`}
+        }`}
     >
       {message}
     </div>
