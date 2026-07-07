@@ -29,6 +29,22 @@ const tripSchema = new mongoose.Schema(
             type: String,
             trim: true
         },
+        checklist: {
+            type: [
+                {
+                    text: {
+                        type: String,
+                        required: true,
+                        trim: true
+                    },
+                    isCompleted: {
+                        type: Boolean,
+                        default: false
+                    }
+                }
+            ],
+            default: []
+        },
         owner: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

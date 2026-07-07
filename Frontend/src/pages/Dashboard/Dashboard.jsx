@@ -194,7 +194,11 @@ const Dashboard = () => {
                   {previewTrips.length > 0 ? (
                     <div className='grid gap-5 md:grid-cols-2'>
                       {previewTrips.map((trip) => (
-                        <TripPreviewCard key={trip._id} trip={trip} />
+                        <TripPreviewCard
+                          key={trip._id}
+                          onOpenDetails={() => navigate(`/trips/${trip._id}`)}
+                          trip={trip}
+                        />
                       ))}
                     </div>
                   ) : (
@@ -329,8 +333,8 @@ const SidebarLink = ({ item, onClick }) => {
       type='button'
       onClick={onClick}
       className={`flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3 text-left text-sm font-bold transition-all duration-300 ${item.isActive
-          ? 'border border-white/10 bg-slate-800 text-cyan-200'
-          : 'border border-transparent text-slate-300 hover:border-cyan-400/30 hover:bg-white/10 hover:text-white'
+        ? 'border border-white/10 bg-slate-800 text-cyan-200'
+        : 'border border-transparent text-slate-300 hover:border-cyan-400/30 hover:bg-white/10 hover:text-white'
         }`}
     >
       <span className='flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 text-xs'>
@@ -397,7 +401,7 @@ const DashboardStat = ({ icon: Icon, label, value }) => {
   )
 }
 
-const TripPreviewCard = ({ trip }) => {
+const TripPreviewCard = ({ onOpenDetails, trip }) => {
   return (
     <article className='overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 shadow-xl shadow-slate-950/25 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-slate-800/80 hover:shadow-cyan-500/10'>
       <div className='relative h-44 overflow-hidden bg-gradient-to-br from-blue-500 via-cyan-400 to-emerald-300 sm:h-56'>
@@ -421,8 +425,8 @@ const TripPreviewCard = ({ trip }) => {
 
         <button
           type='button'
-          disabled
-          className='mt-4 inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-cyan-100 transition-all duration-300'
+          onClick={onOpenDetails}
+          className='mt-4 inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-cyan-100 transition-all duration-300 hover:border-cyan-400/30 hover:bg-white/15 hover:text-white'
         >
           <ArrowRight size={16} />
           View details
@@ -475,7 +479,7 @@ const EmptyTrips = () => {
     <div className='rounded-2xl border border-dashed border-white/15 bg-white/[0.05] p-8 text-center'>
       <p className='text-lg font-black text-white'>No trips yet</p>
       <p className='mx-auto mt-2 max-w-md text-sm leading-6 text-slate-400'>
-        Your first trip will appear here once the trip creation page is added.
+        Your first trip will appear here once you create it.
       </p>
     </div>
   )
@@ -485,8 +489,8 @@ const DashboardMessage = ({ message, isError = false }) => {
   return (
     <div
       className={`rounded-3xl border p-6 text-sm font-semibold shadow-xl ${isError
-          ? 'border-red-400/30 bg-red-500/10 text-red-200'
-          : 'border-white/10 bg-slate-900/70 text-slate-300'
+        ? 'border-red-400/30 bg-red-500/10 text-red-200'
+        : 'border-white/10 bg-slate-900/70 text-slate-300'
         }`}
     >
       {message}

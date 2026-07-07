@@ -6,6 +6,7 @@ import Home from '../pages/Home/Home'
 import Login from '../pages/Login/Login'
 import NotFound from '../pages/NotFound/NotFound'
 import Register from '../pages/Register/Register'
+import TripDetails from '../pages/TripDetails/TripDetails'
 import Trips from '../pages/Trips/Trips'
 
 const AppRoutes = () => {
@@ -17,6 +18,7 @@ const AppRoutes = () => {
       <Route path='/dashboard' element={<Dashboard />} />
       <Route path='/trips' element={<Trips />} />
       <Route path='/trips/new' element={<CreateTrip />} />
+      <Route path='/trips/:id' element={<TripDetails />} />
       <Route path='*' element={<NotFound />} />
     </Routes>
   )

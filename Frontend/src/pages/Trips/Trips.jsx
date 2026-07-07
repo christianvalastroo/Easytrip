@@ -154,7 +154,11 @@ const Trips = () => {
         ) : visibleTrips.length > 0 ? (
           <section className='grid gap-5 md:grid-cols-2 xl:grid-cols-3'>
             {visibleTrips.map((trip) => (
-              <TripCard key={trip._id} trip={trip} />
+              <TripCard
+                key={trip._id}
+                onOpenDetails={() => navigate(`/trips/${trip._id}`)}
+                trip={trip}
+              />
             ))}
           </section>
         ) : (
@@ -165,7 +169,7 @@ const Trips = () => {
   )
 }
 
-const TripCard = ({ trip }) => {
+const TripCard = ({ onOpenDetails, trip }) => {
   return (
     <article className='overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 shadow-xl shadow-slate-950/25 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-slate-800/80 hover:shadow-cyan-500/10'>
       <div className='relative h-44 overflow-hidden bg-gradient-to-br from-blue-500 via-cyan-400 to-emerald-300 sm:h-56'>
@@ -189,8 +193,8 @@ const TripCard = ({ trip }) => {
 
         <button
           type='button'
-          disabled
-          className='mt-4 inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-cyan-100'
+          onClick={onOpenDetails}
+          className='mt-4 inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-cyan-100 transition-all duration-300 hover:border-cyan-400/30 hover:bg-white/15 hover:text-white'
         >
           <ArrowRight size={16} />
           View details
