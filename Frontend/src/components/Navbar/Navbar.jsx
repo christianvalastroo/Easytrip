@@ -11,6 +11,11 @@ import {
 } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { API_URL } from '../../config/api'
+import {
+    clearSession,
+    isAuthError,
+    SESSION_EXPIRED_MESSAGE,
+} from '../../utils/auth'
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -47,6 +52,16 @@ const Navbar = () => {
                     },
                 })
 
+                if (isAuthError(response)) {
+                    clearSession()
+                    setIsMenuOpen(false)
+                    setIsProfileMenuOpen(false)
+                    navigate('/login', {
+                        state: { message: SESSION_EXPIRED_MESSAGE },
+                    })
+                    return
+                }
+
                 const responseText = await response.text()
                 const data = responseText ? JSON.parse(responseText) : null
 
@@ -61,7 +76,7 @@ const Navbar = () => {
         }
 
         fetchUser()
-    }, [token])
+    }, [navigate, token])
 
     const navLinks = []
 
@@ -73,12 +88,11 @@ const Navbar = () => {
     ]
 
     const handleLogout = () => {
-        localStorage.removeItem('token')
+        clearSession()
         setToken(null)
         setUser(null)
         setIsMenuOpen(false)
         setIsProfileMenuOpen(false)
-        window.dispatchEvent(new Event('auth-change'))
         navigate('/login')
     }
 

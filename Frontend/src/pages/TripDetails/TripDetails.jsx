@@ -15,6 +15,11 @@ import {
 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { API_URL } from '../../config/api'
+import {
+    clearSession,
+    isAuthError,
+    SESSION_EXPIRED_MESSAGE,
+} from '../../utils/auth'
 
 const defaultChecklist = [
     { text: 'Identity card / Passport', isCompleted: true },
@@ -71,6 +76,14 @@ const TripDetails = () => {
                     fetch(`${API_URL}/trips/${id}`, { headers }),
                     fetch(`${API_URL}/activities/trip/${id}`, { headers }),
                 ])
+
+                if (isAuthError(tripResponse) || isAuthError(activitiesResponse)) {
+                    clearSession()
+                    navigate('/login', {
+                        state: { message: SESSION_EXPIRED_MESSAGE },
+                    })
+                    return
+                }
 
                 const tripText = await tripResponse.text()
                 const activitiesText = await activitiesResponse.text()
@@ -220,6 +233,14 @@ const TripDetails = () => {
                 body: JSON.stringify({ checklist: nextChecklist }),
             })
 
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
+
             const responseText = await response.text()
             const data = responseText ? JSON.parse(responseText) : {}
 
@@ -268,6 +289,14 @@ const TripDetails = () => {
                 body: JSON.stringify(payload),
             })
 
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
+
             const responseText = await response.text()
             const data = responseText ? JSON.parse(responseText) : {}
 
@@ -312,6 +341,14 @@ const TripDetails = () => {
                     Authorization: `Bearer ${token}`,
                 },
             })
+
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
 
             const responseText = await response.text()
             const data = responseText ? JSON.parse(responseText) : {}

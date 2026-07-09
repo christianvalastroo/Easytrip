@@ -3,6 +3,11 @@ import { ArrowLeft, CalendarDays, MapPin, Plane, Wallet } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.png'
 import { API_URL } from '../../config/api'
+import {
+    clearSession,
+    isAuthError,
+    SESSION_EXPIRED_MESSAGE,
+} from '../../utils/auth'
 
 const initialFormData = {
     title: '',
@@ -64,6 +69,14 @@ const CreateTrip = () => {
                 },
                 body: JSON.stringify(payload),
             })
+
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
 
             const responseText = await response.text()
             const data = responseText ? JSON.parse(responseText) : {}

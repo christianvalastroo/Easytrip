@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.png'
 import { API_URL } from '../../config/api'
 
 const Login = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const sessionMessage = location.state?.message
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -87,6 +89,12 @@ const Login = () => {
                 Enter your credentials to return to your dashboard.
               </p>
             </div>
+
+            {sessionMessage && (
+              <p className='mt-6 rounded-2xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-100'>
+                {sessionMessage}
+              </p>
+            )}
 
             <form className='mt-8 space-y-5' onSubmit={handleSubmit}>
               <div>

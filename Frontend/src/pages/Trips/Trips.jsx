@@ -2,6 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { ArrowRight, Plus, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { API_URL } from '../../config/api'
+import {
+  clearSession,
+  isAuthError,
+  SESSION_EXPIRED_MESSAGE,
+} from '../../utils/auth'
 
 const Trips = () => {
   const navigate = useNavigate()
@@ -27,6 +32,14 @@ const Trips = () => {
             Authorization: `Bearer ${token}`,
           },
         })
+
+        if (isAuthError(response)) {
+          clearSession()
+          navigate('/login', {
+            state: { message: SESSION_EXPIRED_MESSAGE },
+          })
+          return
+        }
 
         const responseText = await response.text()
         const data = responseText ? JSON.parse(responseText) : []

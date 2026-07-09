@@ -16,6 +16,11 @@ import {
 import { useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.png'
 import { API_URL } from '../../config/api'
+import {
+  clearSession,
+  isAuthError,
+  SESSION_EXPIRED_MESSAGE,
+} from '../../utils/auth'
 
 const Dashboard = () => {
   const navigate = useNavigate()
@@ -44,6 +49,14 @@ const Dashboard = () => {
           fetch(`${API_URL}/trips`, { headers }),
         ])
 
+        if (isAuthError(userResponse) || isAuthError(tripsResponse)) {
+          clearSession()
+          navigate('/login', {
+            state: { message: SESSION_EXPIRED_MESSAGE },
+          })
+          return
+        }
+
         const userText = await userResponse.text()
         const tripsText = await tripsResponse.text()
         const userData = userText ? JSON.parse(userText) : {}
@@ -70,6 +83,14 @@ const Dashboard = () => {
             fetch(`${API_URL}/activities/trip/${trip._id}`, { headers }),
           ),
         )
+
+        if (activitiesResponses.some((response) => isAuthError(response))) {
+          clearSession()
+          navigate('/login', {
+            state: { message: SESSION_EXPIRED_MESSAGE },
+          })
+          return
+        }
 
         const activitiesData = await Promise.all(
           activitiesResponses.map(async (response) => {
@@ -116,8 +137,7 @@ const Dashboard = () => {
   )
 
   const handleLogout = () => {
-    localStorage.removeItem('token')
-    window.dispatchEvent(new Event('auth-change'))
+    clearSession()
     navigate('/login')
   }
 
