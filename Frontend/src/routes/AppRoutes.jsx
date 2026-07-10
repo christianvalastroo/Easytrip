@@ -8,6 +8,7 @@ import NotFound from '../pages/NotFound/NotFound'
 import Register from '../pages/Register/Register'
 import TripDetails from '../pages/TripDetails/TripDetails'
 import Trips from '../pages/Trips/Trips'
+import PrivateRoutes from './PrivateRoutes'
 
 const AppRoutes = () => {
   return (
@@ -15,10 +16,14 @@ const AppRoutes = () => {
       <Route path='/' element={<Home />} />
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />
-      <Route path='/dashboard' element={<Dashboard />} />
-      <Route path='/trips' element={<Trips />} />
-      <Route path='/trips/new' element={<CreateTrip />} />
-      <Route path='/trips/:id' element={<TripDetails />} />
+
+      <Route element={<PrivateRoutes />}>
+        <Route path='/dashboard' element={<Dashboard />} />
+        <Route path='/trips' element={<Trips />} />
+        <Route path='/trips/new' element={<CreateTrip />} />
+        <Route path='/trips/:id' element={<TripDetails />} />
+      </Route>
+
       <Route path='*' element={<NotFound />} />
     </Routes>
   )
