@@ -329,17 +329,25 @@ const DashboardSidebar = ({ onLogout, user, userInitial }) => {
 }
 
 const SidebarLinks = ({ onClick }) => {
+  const navigate = useNavigate()
   const menuItems = [
     { icon: Map, label: 'My trips', isActive: true },
     { icon: Activity, label: 'Activities' },
-    { icon: UserRound, label: 'Profile' },
+    { icon: UserRound, label: 'Profile', path: '/profile' },
     { icon: Settings, label: 'Settings' },
   ]
 
   return (
     <div className='flex flex-col gap-2'>
       {menuItems.map((item) => (
-        <SidebarLink key={item.label} item={item} onClick={onClick} />
+        <SidebarLink
+          key={item.label}
+          item={item}
+          onClick={() => {
+            onClick?.()
+            if (item.path) navigate(item.path)
+          }}
+        />
       ))}
     </div>
   )

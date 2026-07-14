@@ -9,6 +9,7 @@ import Register from '../pages/Register/Register'
 import TripDetails from '../pages/TripDetails/TripDetails'
 import Trips from '../pages/Trips/Trips'
 import PrivateRoutes from './PrivateRoutes'
+import Profile from '../pages/Profile/Profile'
 
 const AppRoutes = () => {
   return (
@@ -22,6 +23,7 @@ const AppRoutes = () => {
         <Route path='/trips' element={<Trips />} />
         <Route path='/trips/new' element={<CreateTrip />} />
         <Route path='/trips/:id' element={<TripDetails />} />
+        <Route path='/profile' element={<Profile />} />
       </Route>
 
       <Route path='*' element={<NotFound />} />

@@ -22,11 +22,13 @@ const Navbar = () => {
     const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
     const [token, setToken] = useState(() => localStorage.getItem('token'))
     const [user, setUser] = useState(null)
+    const [authRefreshKey, setAuthRefreshKey] = useState(0)
     const navigate = useNavigate()
 
     useEffect(() => {
         const updateToken = () => {
             setToken(localStorage.getItem('token'))
+            setAuthRefreshKey((currentKey) => currentKey + 1)
         }
 
         window.addEventListener('auth-change', updateToken)
@@ -76,14 +78,14 @@ const Navbar = () => {
         }
 
         fetchUser()
-    }, [navigate, token])
+    }, [authRefreshKey, navigate, token])
 
     const navLinks = []
 
     const mobilePrivateLinks = [
         { path: '/dashboard', label: 'My trips', icon: Map },
         { path: '/dashboard', label: 'Activities', icon: Activity },
-        { path: '/dashboard', label: 'Profile', icon: UserRound },
+        { path: '/profile', label: 'Profile', icon: UserRound },
         { path: '/dashboard', label: 'Settings', icon: Settings },
     ]
 
@@ -156,7 +158,7 @@ const Navbar = () => {
                                 </div>
 
                                 <NavLink
-                                    to='/dashboard'
+                                    to='/profile'
                                     onClick={() => setIsProfileMenuOpen(false)}
                                     className='mt-2 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
                                 >
