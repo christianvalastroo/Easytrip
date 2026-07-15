@@ -60,8 +60,31 @@ const validateUpdateUser = (req, res, next) => {
     next()
 }
 
+const validateUpdatePassword = (req, res, next) => {
+    const { currentPassword, newPassword } = req.body
+
+    if (!currentPassword || !newPassword) {
+        throw new BadRequestException("Current password and new password are required")
+    }
+
+    if (typeof currentPassword !== "string" || typeof newPassword !== "string") {
+        throw new BadRequestException("Passwords must be valid text")
+    }
+
+    if (newPassword.length < minPasswordLength) {
+        throw new BadRequestException("New password must be at least 8 characters long")
+    }
+
+    if (currentPassword === newPassword) {
+        throw new BadRequestException("New password must be different from current password")
+    }
+
+    next()
+}
+
 module.exports = {
     validateRegister,
     validateLogin,
-    validateUpdateUser
+    validateUpdateUser,
+    validateUpdatePassword
 }

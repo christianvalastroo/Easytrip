@@ -334,7 +334,7 @@ const SidebarLinks = ({ onClick }) => {
     { icon: Map, label: 'My trips', isActive: true },
     { icon: Activity, label: 'Activities' },
     { icon: UserRound, label: 'Profile', path: '/profile' },
-    { icon: Settings, label: 'Settings' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
   ]
 
   return (

@@ -86,7 +86,7 @@ const Navbar = () => {
         { path: '/dashboard', label: 'My trips', icon: Map },
         { path: '/dashboard', label: 'Activities', icon: Activity },
         { path: '/profile', label: 'Profile', icon: UserRound },
-        { path: '/dashboard', label: 'Settings', icon: Settings },
+        { path: '/settings', label: 'Settings', icon: Settings },
     ]
 
     const handleLogout = () => {
@@ -167,7 +167,7 @@ const Navbar = () => {
                                 </NavLink>
 
                                 <NavLink
-                                    to='/dashboard'
+                                    to='/settings'
                                     onClick={() => setIsProfileMenuOpen(false)}
                                     className='flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
                                 >

@@ -10,6 +10,7 @@ import TripDetails from '../pages/TripDetails/TripDetails'
 import Trips from '../pages/Trips/Trips'
 import PrivateRoutes from './PrivateRoutes'
 import Profile from '../pages/Profile/Profile'
+import Settings from '../pages/Settings/Settings'
 
 const AppRoutes = () => {
   return (
@@ -24,6 +25,7 @@ const AppRoutes = () => {
         <Route path='/trips/new' element={<CreateTrip />} />
         <Route path='/trips/:id' element={<TripDetails />} />
         <Route path='/profile' element={<Profile />} />
+        <Route path='/settings' element={<Settings />} />
       </Route>
 
       <Route path='*' element={<NotFound />} />
