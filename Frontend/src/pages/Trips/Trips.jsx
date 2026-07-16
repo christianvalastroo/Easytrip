@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { ArrowRight, Plus, Search } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Plus, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { API_URL } from '../../config/api'
 import {
@@ -94,6 +94,15 @@ const Trips = () => {
   return (
     <main className='min-h-[calc(100vh-65px)] bg-slate-950 px-4 py-6 text-white sm:px-6 lg:px-8'>
       <section className='mx-auto max-w-7xl space-y-6'>
+        <button
+          type='button'
+          onClick={() => navigate('/dashboard')}
+          className='flex cursor-pointer items-center gap-2 text-sm font-bold text-slate-400 transition hover:text-cyan-200'
+        >
+          <ArrowLeft size={17} />
+          Back to dashboard
+        </button>
+
         <div className='rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-2xl shadow-slate-950/35 backdrop-blur-xl sm:p-6'>
           <div className='flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between'>
             <div>

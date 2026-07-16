@@ -104,9 +104,12 @@ const Navbar = () => {
         <header className='sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 shadow-lg shadow-slate-950/20 backdrop-blur-xl'>
             <nav className='mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8'>
                 <Link
-                    to='/'
+                    to={token ? '/dashboard' : '/'}
                     className='flex cursor-pointer items-center gap-3'
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => {
+                        setIsMenuOpen(false)
+                        setIsProfileMenuOpen(false)
+                    }}
                 >
                     <span className='flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-lg font-black text-slate-950 shadow-lg shadow-cyan-500/25'>
                         <Plane size={20} />
