@@ -332,7 +332,6 @@ const SidebarLinks = ({ onClick }) => {
   const navigate = useNavigate()
   const menuItems = [
     { icon: Map, label: 'My trips', isActive: true },
-    { icon: Activity, label: 'Activities' },
     { icon: UserRound, label: 'Profile', path: '/profile' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ]

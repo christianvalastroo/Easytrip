@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {
-    Activity,
     LogOut,
     Map,
     Menu,
@@ -84,7 +83,6 @@ const Navbar = () => {
 
     const mobilePrivateLinks = [
         { path: '/dashboard', label: 'My trips', icon: Map },
-        { path: '/dashboard', label: 'Activities', icon: Activity },
         { path: '/profile', label: 'Profile', icon: UserRound },
         { path: '/settings', label: 'Settings', icon: Settings },
     ]
