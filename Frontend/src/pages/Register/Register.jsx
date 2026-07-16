@@ -48,7 +48,14 @@ const Register = () => {
         throw new Error(data.message || 'Registration failed')
       }
 
-      navigate('/login')
+      localStorage.setItem('token', data.token)
+      window.dispatchEvent(new Event('auth-change'))
+
+      navigate('/dashboard', {
+        state: {
+          message: `Welcome to EasyTrip, ${data.user.firstName}!`,
+        },
+      })
     } catch (error) {
       setError(error.message)
     } finally {

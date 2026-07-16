@@ -23,6 +23,12 @@ const registerUser = async (req, res, next) => {
             password: hashedPassword
         })
 
+        const token = jwt.sign(
+            { id: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        )
+
         res.status(201).json({
             message: "User registered successfully",
             user: {
@@ -30,7 +36,8 @@ const registerUser = async (req, res, next) => {
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email
-            }
+            },
+            token
         })
     } catch (error) {
         next(error)

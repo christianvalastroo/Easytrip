@@ -5,6 +5,7 @@ import {
   Banknote,
   CalendarDays,
   ClipboardList,
+  CheckCircle2,
   LogOut,
   Map,
   NotebookPen,
@@ -13,7 +14,7 @@ import {
   Settings,
   UserRound,
 } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.png'
 import { API_URL } from '../../config/api'
 import {
@@ -24,6 +25,8 @@ import {
 
 const Dashboard = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [welcomeMessage] = useState(() => location.state?.message || '')
   const [user, setUser] = useState(null)
   const [trips, setTrips] = useState([])
   const [activitiesCount, setActivitiesCount] = useState(0)
@@ -120,6 +123,12 @@ const Dashboard = () => {
     fetchDashboardData()
   }, [navigate])
 
+  useEffect(() => {
+    if (location.state?.message) {
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [location.pathname, location.state, navigate])
+
   const upcomingTrips = useMemo(() => {
     const today = new Date()
 
@@ -158,6 +167,13 @@ const Dashboard = () => {
         </aside>
 
         <section className='min-w-0 space-y-6'>
+          {welcomeMessage && (
+            <div className='flex items-center gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-bold text-emerald-200'>
+              <CheckCircle2 size={18} className='shrink-0' />
+              {welcomeMessage}
+            </div>
+          )}
+
           {isLoading ? (
             <DashboardMessage message='Loading dashboard...' />
           ) : error ? (
