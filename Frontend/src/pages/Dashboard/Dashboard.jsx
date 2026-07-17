@@ -397,7 +397,7 @@ const QuickActions = () => {
   ]
 
   return (
-    <section className='grid gap-3 sm:grid-cols-2 xl:grid-cols-4'>
+    <section className='grid grid-cols-2 gap-3 xl:grid-cols-4'>
       {actions.map((action) => (
         <QuickActionButton key={action.label} action={action} />
       ))}
@@ -412,7 +412,7 @@ const QuickActionButton = ({ action }) => {
     <button
       type='button'
       disabled
-      className='cursor-pointer rounded-2xl border border-white/10 bg-slate-900/70 p-4 text-left opacity-80 shadow-xl shadow-slate-950/25 backdrop-blur-xl transition-all duration-300 sm:p-5'
+      className='aspect-square cursor-pointer rounded-2xl border border-white/10 bg-slate-900/70 p-4 text-left opacity-80 shadow-xl shadow-slate-950/25 backdrop-blur-xl transition-all duration-300 sm:aspect-auto sm:p-5'
     >
       <span className='flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-cyan-200'>
         <Icon size={18} />
