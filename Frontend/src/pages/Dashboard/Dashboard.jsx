@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.png'
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 import {
   clearSession,
@@ -175,7 +176,9 @@ const Dashboard = () => {
           )}
 
           {isLoading ? (
-            <DashboardMessage message='Loading dashboard...' />
+            <DashboardMessage
+              message={<LoadingSpinner label='Loading dashboard...' />}
+            />
           ) : error ? (
             <DashboardMessage isError message={error} />
           ) : (
