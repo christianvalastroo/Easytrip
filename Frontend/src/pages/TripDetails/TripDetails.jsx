@@ -59,6 +59,22 @@ const TripDetails = () => {
     const [newChecklistItem, setNewChecklistItem] = useState('')
     const [editingChecklistItem, setEditingChecklistItem] = useState('')
     const [editingChecklistValue, setEditingChecklistValue] = useState('')
+    const [notesValue, setNotesValue] = useState('')
+    const [notesError, setNotesError] = useState('')
+    const [isEditingNotes, setIsEditingNotes] = useState(false)
+    const [isSavingNotes, setIsSavingNotes] = useState(false)
+    const [deletingActivityId, setDeletingActivityId] = useState('')
+    const [activityActionError, setActivityActionError] = useState('')
+    const [editingActivityId, setEditingActivityId] = useState('')
+    const [editingActivityFormData, setEditingActivityFormData] = useState(
+        initialActivityFormData,
+    )
+    const [isSavingActivityEdit, setIsSavingActivityEdit] = useState(false)
+    const [activityEditError, setActivityEditError] = useState('')
+    const [isDeleteTripDialogOpen, setIsDeleteTripDialogOpen] = useState(false)
+    const [deleteTripError, setDeleteTripError] = useState('')
+    const [activityToDelete, setActivityToDelete] = useState(null)
+    const [checklistItemToDelete, setChecklistItemToDelete] = useState(null)
 
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -101,6 +117,7 @@ const TripDetails = () => {
                 }
 
                 setTrip(tripData)
+                setNotesValue(tripData.notes || '')
                 setActivities(Array.isArray(activitiesData) ? activitiesData : [])
                 setChecklistItems(
                     tripData.checklist?.length > 0 ? tripData.checklist : defaultChecklist,
@@ -138,6 +155,116 @@ const TripDetails = () => {
             ...prevFormData,
             [name]: value,
         }))
+    }
+
+    const handleStartEditActivity = (activity) => {
+        setEditingActivityId(activity._id)
+
+        setEditingActivityFormData({
+            title: activity.title || '',
+            description: activity.description || '',
+            date: formatDateInput(activity.date),
+            time: activity.time || '',
+            location: activity.location || '',
+            cost: activity.cost ?? '',
+            type: activity.type || 'other',
+        })
+
+        setActivityEditError('')
+        setActivityActionError('')
+        setShowActivityForm(false)
+    }
+
+    const handleCancelEditActivity = () => {
+        setEditingActivityId('')
+        setEditingActivityFormData(initialActivityFormData)
+        setActivityEditError('')
+    }
+
+    const handleEditActivityChange = (event) => {
+        const { name, value } = event.target
+
+        setEditingActivityFormData((prevFormData) => ({
+            ...prevFormData,
+            [name]: value,
+        }))
+    }
+
+    const handleUpdateActivity = async (event) => {
+        event.preventDefault()
+        setActivityEditError('')
+
+        const token = localStorage.getItem('token')
+
+        if (!token) {
+            navigate('/login')
+            return
+        }
+
+        setIsSavingActivityEdit(true)
+
+        try {
+            const payload = {
+                title: editingActivityFormData.title.trim(),
+                description: editingActivityFormData.description.trim(),
+                date: editingActivityFormData.date,
+                time: editingActivityFormData.time,
+                location: editingActivityFormData.location.trim(),
+                cost:
+                    editingActivityFormData.cost === ''
+                        ? 0
+                        : Number(editingActivityFormData.cost),
+                type: editingActivityFormData.type,
+            }
+
+            const response = await fetch(`${API_URL}/activities/${editingActivityId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify(payload),
+            })
+
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
+
+            const responseText = await response.text()
+            const data = responseText ? JSON.parse(responseText) : {}
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Activity update failed')
+            }
+
+            setActivities((prevActivities) =>
+                prevActivities
+                    .map((activity) =>
+                        activity._id === data.activity._id ? data.activity : activity,
+                    )
+                    .sort((firstActivity, secondActivity) => {
+                        const dateDifference =
+                            new Date(firstActivity.date) - new Date(secondActivity.date)
+
+                        if (dateDifference !== 0) {
+                            return dateDifference
+                        }
+
+                        return (firstActivity.time || '').localeCompare(
+                            secondActivity.time || '',
+                        )
+                    }),
+            )
+            handleCancelEditActivity()
+        } catch (error) {
+            setActivityEditError(error.message)
+        } finally {
+            setIsSavingActivityEdit(false)
+        }
     }
 
     const handleToggleChecklistItem = (item) => {
@@ -327,12 +454,21 @@ const TripDetails = () => {
         }
     }
 
-    const handleDeleteTrip = async () => {
-        const shouldDelete = window.confirm('Delete this trip and all its activities?')
+    const handleStartEditNotes = () => {
+        setNotesValue(trip.notes || '')
+        setNotesError('')
+        setIsEditingNotes(true)
+    }
 
-        if (!shouldDelete) {
-            return
-        }
+    const handleCancelEditNotes = () => {
+        setNotesValue(trip.notes || '')
+        setNotesError('')
+        setIsEditingNotes(false)
+    }
+
+    const handleSaveNotes = async (event) => {
+        event.preventDefault()
+        setNotesError('')
 
         const token = localStorage.getItem('token')
 
@@ -341,6 +477,97 @@ const TripDetails = () => {
             return
         }
 
+        setIsSavingNotes(true)
+
+        try {
+            const response = await fetch(`${API_URL}/trips/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ notes: notesValue.trim() }),
+            })
+
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
+
+            const responseText = await response.text()
+            const data = responseText ? JSON.parse(responseText) : {}
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Notes update failed')
+            }
+
+            setTrip(data.trip)
+            setNotesValue(data.trip.notes || '')
+            setIsEditingNotes(false)
+        } catch (error) {
+            setNotesError(error.message)
+        } finally {
+            setIsSavingNotes(false)
+        }
+    }
+
+    const handleDeleteActivity = async (activity) => {
+        const token = localStorage.getItem('token')
+
+        if (!token) {
+            navigate('/login')
+            return
+        }
+
+        setActivityActionError('')
+        setDeletingActivityId(activity._id)
+
+        try {
+            const response = await fetch(`${API_URL}/activities/${activity._id}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
+
+            const responseText = await response.text()
+            const data = responseText ? JSON.parse(responseText) : {}
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Activity deletion failed')
+            }
+
+            setActivities((prevActivities) =>
+                prevActivities.filter((item) => item._id !== activity._id),
+            )
+            setActivityToDelete(null)
+        } catch (error) {
+            setActivityActionError(error.message)
+        } finally {
+            setDeletingActivityId('')
+        }
+    }
+
+    const handleDeleteTrip = async () => {
+        const token = localStorage.getItem('token')
+
+        if (!token) {
+            navigate('/login')
+            return
+        }
+
+        setDeleteTripError('')
         setIsDeletingTrip(true)
 
         try {
@@ -368,9 +595,47 @@ const TripDetails = () => {
 
             navigate('/trips')
         } catch (error) {
-            setError(error.message)
+            setDeleteTripError(error.message)
+        } finally {
             setIsDeletingTrip(false)
         }
+    }
+
+    const handleOpenDeleteTripDialog = () => {
+        setDeleteTripError('')
+        setIsDeleteTripDialogOpen(true)
+    }
+
+    const handleOpenDeleteActivityDialog = (activity) => {
+        setActivityActionError('')
+        setActivityToDelete(activity)
+    }
+
+    const handleCloseDeleteActivityDialog = () => {
+        if (deletingActivityId) {
+            return
+        }
+
+        setActivityActionError('')
+        setActivityToDelete(null)
+    }
+
+    const handleConfirmDeleteChecklistItem = () => {
+        if (!checklistItemToDelete) {
+            return
+        }
+
+        handleDeleteChecklistItem(checklistItemToDelete)
+        setChecklistItemToDelete(null)
+    }
+
+    const handleCloseDeleteTripDialog = () => {
+        if (isDeletingTrip) {
+            return
+        }
+
+        setDeleteTripError('')
+        setIsDeleteTripDialogOpen(false)
     }
 
     return (
@@ -412,25 +677,23 @@ const TripDetails = () => {
                                         {trip.title}
                                     </h1>
 
-                                    <p className='mt-4 flex flex-wrap items-center gap-2 text-sm font-semibold text-slate-200 sm:text-base'>
-                                        <CalendarDays size={18} />
-                                        {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
-                                    </p>
+                                    <div className='mt-4 flex items-start gap-2 text-sm font-semibold text-slate-200 sm:items-center sm:text-base'>
+                                        <CalendarDays size={18} className='mt-0.5 shrink-0 sm:mt-0' />
+                                        <p>
+                                            <span>{formatDate(trip.startDate)}</span>
+                                            <span className='block sm:inline'> - {formatDate(trip.endDate)}</span>
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
                         </section>
 
-                        <section className='grid gap-4 sm:grid-cols-2 xl:grid-cols-3'>
+                        <section className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
                             <DetailBox
                                 icon={MapPin}
                                 label='Destination'
                                 value={trip.destination}
-                            />
-                            <DetailBox
-                                icon={CalendarDays}
-                                label='Dates'
-                                value={`${formatDate(trip.startDate)} - ${formatDate(trip.endDate)}`}
                             />
                             <DetailBox
                                 icon={Wallet}
@@ -452,22 +715,71 @@ const TripDetails = () => {
                         <section className='grid gap-6 lg:grid-cols-[1fr_20rem]'>
                             <div className='space-y-6'>
                                 <article className='rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-2xl shadow-slate-950/35 backdrop-blur-xl sm:p-6'>
-                                    <div className='flex items-center gap-3'>
-                                        <span className='flex h-11 w-11 items-center justify-center rounded-2xl bg-white/10 text-cyan-200'>
-                                            <FileText size={20} />
-                                        </span>
-                                        <div>
-                                            <p className='text-xs font-bold uppercase tracking-wide text-slate-400'>
-                                                Trip notes
-                                            </p>
-                                            <h2 className='text-2xl font-black'>Overview</h2>
+                                    <div className='flex items-start justify-between gap-4'>
+                                        <div className='flex items-center gap-3'>
+                                            <span className='flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-cyan-200'>
+                                                <FileText size={20} />
+                                            </span>
+                                            <div>
+                                                <p className='text-xs font-bold uppercase tracking-wide text-slate-400'>
+                                                    Trip notes
+                                                </p>
+                                                <h2 className='text-2xl font-black'>Overview</h2>
+                                            </div>
                                         </div>
+
+                                        {!isEditingNotes && (
+                                            <button
+                                                type='button'
+                                                onClick={handleStartEditNotes}
+                                                className='flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/10 text-cyan-100 transition hover:border-cyan-400/30 hover:bg-white/15'
+                                                aria-label='Edit notes'
+                                            >
+                                                <Pencil size={16} />
+                                            </button>
+                                        )}
                                     </div>
 
-                                    <p className='mt-5 text-sm leading-7 text-slate-300'>
-                                        {trip.notes ||
-                                            'No notes yet. Use this space later for hotel ideas, transport details, places to visit and useful reminders.'}
-                                    </p>
+                                    {isEditingNotes ? (
+                                        <form onSubmit={handleSaveNotes} className='mt-5'>
+                                            <textarea
+                                                value={notesValue}
+                                                onChange={(event) => setNotesValue(event.target.value)}
+                                                rows='4'
+                                                placeholder='Hotel ideas, transport details and useful reminders...'
+                                                className='w-full resize-none rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-white/15'
+                                            />
+
+                                            {notesError && (
+                                                <p className='mt-3 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-200'>
+                                                    {notesError}
+                                                </p>
+                                            )}
+
+                                            <div className='mt-3 flex flex-wrap gap-2'>
+                                                <button
+                                                    type='submit'
+                                                    disabled={isSavingNotes}
+                                                    className='inline-flex cursor-pointer items-center gap-2 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-70'
+                                                >
+                                                    <Check size={16} />
+                                                    {isSavingNotes ? 'Saving...' : 'Save notes'}
+                                                </button>
+                                                <button
+                                                    type='button'
+                                                    onClick={handleCancelEditNotes}
+                                                    disabled={isSavingNotes}
+                                                    className='inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-70'
+                                                >
+                                                    <X size={16} /> Cancel
+                                                </button>
+                                            </div>
+                                        </form>
+                                    ) : (
+                                        <p className='mt-5 whitespace-pre-wrap break-words text-sm leading-7 text-slate-300'>
+                                            {trip.notes || 'No notes yet. Add hotel ideas, transport details or useful reminders.'}
+                                        </p>
+                                    )}
                                 </article>
 
                                 <article className='rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-2xl shadow-slate-950/35 backdrop-blur-xl sm:p-6'>
@@ -502,6 +814,12 @@ const TripDetails = () => {
                                         />
                                     )}
 
+                                    {activityActionError && (
+                                        <p className='mt-4 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-200'>
+                                            {activityActionError}
+                                        </p>
+                                    )}
+
                                     {activities.length > 0 ? (
                                         <div className='mt-6 space-y-5'>
                                             {Object.entries(activitiesByDate).map(
@@ -517,12 +835,31 @@ const TripDetails = () => {
                                                         </div>
 
                                                         <div className='space-y-3'>
-                                                            {dayActivities.map((activity) => (
-                                                                <ActivityCard
-                                                                    activity={activity}
-                                                                    key={activity._id}
-                                                                />
-                                                            ))}
+                                                            {dayActivities.map((activity) =>
+                                                                editingActivityId === activity._id ? (
+                                                                    <ActivityForm
+                                                                        error={activityEditError}
+                                                                        formData={editingActivityFormData}
+                                                                        formIdPrefix={`edit-${activity._id}`}
+                                                                        isEditing
+                                                                        isLoading={isSavingActivityEdit}
+                                                                        key={activity._id}
+                                                                        onCancel={handleCancelEditActivity}
+                                                                        onChange={handleEditActivityChange}
+                                                                        onSubmit={handleUpdateActivity}
+                                                                        submitLabel='Save changes'
+                                                                        trip={trip}
+                                                                    />
+                                                                ) : (
+                                                                    <ActivityCard
+                                                                        activity={activity}
+                                                                        isDeleting={deletingActivityId === activity._id}
+                                                                        key={activity._id}
+                                                                        onDelete={() => handleOpenDeleteActivityDialog(activity)}
+                                                                        onEdit={() => handleStartEditActivity(activity)}
+                                                                    />
+                                                                ),
+                                                            )}
                                                         </div>
                                                     </div>
                                                 ),
@@ -553,7 +890,7 @@ const TripDetails = () => {
                                     onCancelEdit={handleCancelEditChecklistItem}
                                     onChangeEditingValue={setEditingChecklistValue}
                                     onChangeNewItem={setNewChecklistItem}
-                                    onDelete={handleDeleteChecklistItem}
+                                    onDelete={setChecklistItemToDelete}
                                     onSaveEdit={handleSaveChecklistItem}
                                     onStartEdit={handleStartEditChecklistItem}
                                     onToggle={handleToggleChecklistItem}
@@ -591,7 +928,7 @@ const TripDetails = () => {
                                         <button
                                             type='button'
                                             disabled={isDeletingTrip}
-                                            onClick={handleDeleteTrip}
+                                            onClick={handleOpenDeleteTripDialog}
                                             className='flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-200 transition-all duration-300 hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-70'
                                         >
                                             <Trash2 size={17} />
@@ -604,11 +941,121 @@ const TripDetails = () => {
                     </div>
                 )}
             </section>
+
+            {isDeleteTripDialogOpen && trip && (
+                <DeleteConfirmationDialog
+                    error={deleteTripError}
+                    isDeleting={isDeletingTrip}
+                    onClose={handleCloseDeleteTripDialog}
+                    onConfirm={handleDeleteTrip}
+                    title='Delete this trip?'
+                >
+                    <span className='font-bold text-white'>{trip.title}</span> and all its activities
+                    will be permanently deleted. This action cannot be undone.
+                </DeleteConfirmationDialog>
+            )}
+
+            {activityToDelete && (
+                <DeleteConfirmationDialog
+                    error={activityActionError}
+                    isDeleting={deletingActivityId === activityToDelete._id}
+                    onClose={handleCloseDeleteActivityDialog}
+                    onConfirm={() => handleDeleteActivity(activityToDelete)}
+                    title='Delete this activity?'
+                >
+                    <span className='font-bold text-white'>{activityToDelete.title}</span> will be
+                    permanently removed from this itinerary.
+                </DeleteConfirmationDialog>
+            )}
+
+            {checklistItemToDelete && (
+                <DeleteConfirmationDialog
+                    confirmLabel='Delete item'
+                    isDeleting={false}
+                    onClose={() => setChecklistItemToDelete(null)}
+                    onConfirm={handleConfirmDeleteChecklistItem}
+                    title='Delete this checklist item?'
+                >
+                    <span className='font-bold text-white'>{checklistItemToDelete.text}</span> will be
+                    removed from your trip checklist.
+                </DeleteConfirmationDialog>
+            )}
         </main>
     )
 }
 
-const ActivityCard = ({ activity }) => {
+const DeleteConfirmationDialog = ({
+    children,
+    confirmLabel = 'Delete permanently',
+    error,
+    isDeleting,
+    onClose,
+    onConfirm,
+    title,
+}) => {
+    return (
+        <div className='fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm'>
+            <section
+                role='dialog'
+                aria-modal='true'
+                aria-labelledby='delete-confirmation-title'
+                className='w-full max-w-md rounded-3xl border border-red-400/20 bg-slate-900 p-5 shadow-2xl shadow-slate-950/60 sm:p-6'
+            >
+                <div className='flex items-start justify-between gap-4'>
+                    <div>
+                        <p className='text-sm font-bold uppercase tracking-wide text-red-300'>
+                            Danger zone
+                        </p>
+                        <h2 id='delete-confirmation-title' className='mt-2 text-2xl font-black text-white'>
+                            {title}
+                        </h2>
+                    </div>
+                    <button
+                        type='button'
+                        onClick={onClose}
+                        disabled={isDeleting}
+                        aria-label='Close delete confirmation dialog'
+                        className='flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/10 text-slate-300 transition hover:bg-white/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
+                    >
+                        <X size={18} />
+                    </button>
+                </div>
+
+                <p className='mt-4 text-sm leading-6 text-slate-300'>
+                    {children}
+                </p>
+
+                {error && (
+                    <p className='mt-4 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-200'>
+                        {error}
+                    </p>
+                )}
+
+                <div className='mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end'>
+                    <button
+                        type='button'
+                        onClick={onClose}
+                        disabled={isDeleting}
+                        className='cursor-pointer rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60'
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        type='button'
+                        onClick={onConfirm}
+                        disabled={isDeleting}
+                        className='inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-red-500 px-5 py-3 text-sm font-black text-white transition hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-70'
+                    >
+                        <Trash2 size={17} />
+                        {isDeleting ? 'Deleting...' : confirmLabel}
+                    </button>
+                </div>
+            </section>
+        </div>
+    )
+}
+
+const ActivityCard = ({ activity, isDeleting, onDelete, onEdit }) => {
     return (
         <article className='rounded-2xl border border-white/10 bg-white/[0.06] p-4'>
             <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
@@ -623,9 +1070,28 @@ const ActivityCard = ({ activity }) => {
                     )}
                 </div>
 
-                <span className='w-fit rounded-full border border-white/10 bg-slate-950/40 px-3 py-1 text-xs font-bold capitalize text-slate-300'>
-                    {activity.type}
-                </span>
+                <div className='flex items-center gap-2'>
+                    <span className='w-fit rounded-full border border-white/10 bg-slate-950/40 px-3 py-1 text-xs font-bold capitalize text-slate-300'>
+                        {activity.type}
+                    </span>
+                    <button
+                        type='button'
+                        onClick={onEdit}
+                        className='flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-cyan-400/20 bg-cyan-400/10 text-cyan-100 transition hover:bg-cyan-400/15'
+                        aria-label={`Edit ${activity.title}`}
+                    >
+                        <Pencil size={15} />
+                    </button>
+                    <button
+                        type='button'
+                        onClick={onDelete}
+                        disabled={isDeleting}
+                        className='flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-red-400/20 bg-red-500/10 text-red-200 transition hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-60'
+                        aria-label={`Delete ${activity.title}`}
+                    >
+                        <Trash2 size={15} />
+                    </button>
+                </div>
             </div>
 
             {activity.description && (
@@ -881,8 +1347,8 @@ const ChecklistCard = ({
                                         />
                                         <span
                                             className={`min-w-0 break-words text-sm font-semibold ${item.isCompleted
-                                                    ? 'text-white'
-                                                    : 'text-slate-400'
+                                                ? 'text-white'
+                                                : 'text-slate-400'
                                                 }`}
                                         >
                                             {item.text}
@@ -915,7 +1381,7 @@ const ChecklistCard = ({
 
 const DetailBox = ({ icon: Icon, label, value }) => {
     return (
-        <div className='rounded-2xl border border-white/10 bg-slate-900/70 p-4 shadow-xl shadow-slate-950/25 backdrop-blur-xl sm:p-5'>
+        <div className='min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 p-4 shadow-xl shadow-slate-950/25 backdrop-blur-xl sm:p-5'>
             <div className='flex items-center gap-3'>
                 <span className='flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-cyan-200'>
                     <Icon size={19} />
