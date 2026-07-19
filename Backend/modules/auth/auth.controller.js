@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken")
 const User = require("../users/users.schema")
 const BadRequestException = require("../../exceptions/BadRequestException")
 const ConflictException = require("../../exceptions/ConflictException")
+const { sendWelcomeEmail } = require("../../services/email.service")
 
 const registerUser = async (req, res, next) => {
     try {
@@ -28,6 +29,13 @@ const registerUser = async (req, res, next) => {
             process.env.JWT_SECRET,
             { expiresIn: "1h" }
         )
+
+        await sendWelcomeEmail({
+            email: user.email,
+            firstName: user.firstName
+        }).catch((error) => {
+            console.error("Unable to send welcome email:", error.message)
+        })
 
         res.status(201).json({
             message: "User registered successfully",
