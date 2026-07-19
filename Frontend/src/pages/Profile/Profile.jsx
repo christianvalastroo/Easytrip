@@ -275,7 +275,13 @@ const Profile = () => {
                                         disabled={isSaving}
                                         className='flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60'
                                     >
-                                        <Save size={16} /> {isSaving ? 'Saving...' : 'Save changes'}
+                                        {isSaving ? (
+                                            <LoadingSpinner label='Saving...' size={16} />
+                                        ) : (
+                                            <>
+                                                <Save size={16} /> Save changes
+                                            </>
+                                        )}
                                     </button>
                                 </div>
                             )}
