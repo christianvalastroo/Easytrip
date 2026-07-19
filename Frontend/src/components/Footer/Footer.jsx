@@ -24,26 +24,13 @@ const Footer = () => {
 
                 <div className='hidden md:block'>
                     <h2 className='text-sm font-black uppercase tracking-wide text-cyan-200'>
-                        Contact
+                        Project
                     </h2>
 
-                    <div className='mt-4 space-y-3 text-sm leading-6 text-slate-300'>
-                        <p>Have questions about the project?</p>
-                        <a
-                            href='mailto:christianvalastro@gmail.com'
-                            className='inline-flex transition hover:text-white'
-                        >
-                            Email: christianvalastro@gmail.com
-                        </a>
-                        <a
-                            href='https://wa.me/37060266624'
-                            className='block transition hover:text-white'
-                            target='_blank'
-                            rel='noreferrer'
-                        >
-                            WhatsApp: +370 602 66 624
-                        </a>
-                    </div>
+                    <p className='mt-4 text-sm leading-6 text-slate-300'>
+                        A private full-stack travel planner designed to keep
+                        every itinerary clear and organized.
+                    </p>
                 </div>
             </div>
 

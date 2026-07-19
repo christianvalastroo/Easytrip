@@ -187,7 +187,13 @@ const Trips = () => {
             ))}
           </section>
         ) : (
-          <TripsMessage message='No trips match your filters.' />
+          <TripsMessage
+            message={
+              trips.length === 0
+                ? 'No trips yet. Create your first trip to get started.'
+                : 'No trips match your filters.'
+            }
+          />
         )}
       </section>
     </main>
