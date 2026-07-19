@@ -12,6 +12,7 @@ import {
     X,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 import {
     clearSession,
@@ -254,8 +255,13 @@ const Settings = () => {
                                     disabled={isChangingPassword}
                                     className='flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-4 py-2.5 text-sm font-black text-slate-950 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60'
                                 >
-                                    <KeyRound size={17} />
-                                    {isChangingPassword ? 'Updating...' : 'Change password'}
+                                    {isChangingPassword ? (
+                                        <LoadingSpinner label='Updating...' size={17} />
+                                    ) : (
+                                        <>
+                                            <KeyRound size={17} /> Change password
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
