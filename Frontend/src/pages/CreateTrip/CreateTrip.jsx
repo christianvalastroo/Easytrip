@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowLeft, CalendarDays, MapPin, Plane, Wallet } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.png'
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 import {
     clearSession,
@@ -234,9 +235,13 @@ const CreateTrip = () => {
                             <button
                                 type='submit'
                                 disabled={isLoading}
-                                className='cursor-pointer rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
+                                className='inline-flex cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
                             >
-                                {isLoading ? 'Creating...' : 'Create trip'}
+                                {isLoading ? (
+                                    <LoadingSpinner label='Creating...' size={18} />
+                                ) : (
+                                    'Create trip'
+                                )}
                             </button>
                         </div>
                     </form>
