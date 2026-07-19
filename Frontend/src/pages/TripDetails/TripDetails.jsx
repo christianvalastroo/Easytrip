@@ -1244,8 +1244,14 @@ const ActivityForm = ({
                     disabled={isLoading}
                     className='inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
                 >
-                    {isEditing ? <Check size={17} /> : <Plus size={17} />}
-                    {isLoading ? 'Saving...' : submitLabel}
+                    {isLoading ? (
+                        <LoadingSpinner label='Saving...' size={17} />
+                    ) : (
+                        <>
+                            {isEditing ? <Check size={17} /> : <Plus size={17} />}
+                            {submitLabel}
+                        </>
+                    )}
                 </button>
 
                 {onCancel && (
