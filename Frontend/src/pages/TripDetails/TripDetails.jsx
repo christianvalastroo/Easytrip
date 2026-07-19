@@ -1054,8 +1054,13 @@ const DeleteConfirmationDialog = ({
                         disabled={isDeleting}
                         className='inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-red-500 px-5 py-3 text-sm font-black text-white transition hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-70'
                     >
-                        <Trash2 size={17} />
-                        {isDeleting ? 'Deleting...' : confirmLabel}
+                        {isDeleting ? (
+                            <LoadingSpinner label='Deleting...' size={17} />
+                        ) : (
+                            <>
+                                <Trash2 size={17} /> {confirmLabel}
+                            </>
+                        )}
                     </button>
                 </div>
             </section>
