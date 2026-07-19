@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.png'
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 
 const Login = () => {
@@ -144,9 +145,13 @@ const Login = () => {
               <button
                 type='submit'
                 disabled={isLoading}
-                className='w-full cursor-pointer rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3.5 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
+                className='inline-flex w-full cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3.5 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
               >
-                {isLoading ? 'Signing in...' : 'Login'}
+                {isLoading ? (
+                  <LoadingSpinner label='Signing in...' size={18} />
+                ) : (
+                  'Login'
+                )}
               </button>
             </form>
 
