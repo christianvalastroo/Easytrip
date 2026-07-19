@@ -456,8 +456,13 @@ const DeleteAccountDialog = ({
                     disabled={confirmation !== 'DELETE' || isDeleting}
                     className='flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:opacity-40'
                 >
-                    <Trash2 size={17} />
-                    {isDeleting ? 'Deleting...' : 'Delete permanently'}
+                    {isDeleting ? (
+                        <LoadingSpinner label='Deleting...' size={17} />
+                    ) : (
+                        <>
+                            <Trash2 size={17} /> Delete permanently
+                        </>
+                    )}
                 </button>
             </div>
         </div>
