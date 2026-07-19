@@ -139,12 +139,21 @@ const Navbar = () => {
                     <div className='relative hidden items-center gap-5 md:flex'>
                         <button
                             type='button'
+                            translate='no'
                             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                            className='flex h-11 w-11 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950 shadow-lg shadow-cyan-500/25 transition hover:-translate-y-0.5'
+                            className='notranslate flex h-11 w-11 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950 shadow-lg shadow-cyan-500/25 transition hover:-translate-y-0.5'
                             aria-label='Open user menu'
                             aria-expanded={isProfileMenuOpen}
                         >
-                            {userInitial}
+                            {user?.avatar?.url ? (
+                                <img
+                                    src={user.avatar.url}
+                                    alt=''
+                                    className='h-full w-full object-cover'
+                                />
+                            ) : (
+                                userInitial
+                            )}
                         </button>
 
                         {isProfileMenuOpen && (
@@ -230,8 +239,19 @@ const Navbar = () => {
                         {token ? (
                             <>
                                 <div className='flex items-center gap-3 rounded-2xl border border-white/10 bg-white/10 p-3'>
-                                    <div className='flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950'>
-                                        {userInitial}
+                                    <div
+                                        translate='no'
+                                        className='notranslate flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950'
+                                    >
+                                        {user?.avatar?.url ? (
+                                            <img
+                                                src={user.avatar.url}
+                                                alt=''
+                                                className='h-full w-full object-cover'
+                                            />
+                                        ) : (
+                                            userInitial
+                                        )}
                                     </div>
                                     <div className='min-w-0'>
                                         <p className='truncate text-sm font-black text-white'>

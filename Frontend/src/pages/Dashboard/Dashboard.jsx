@@ -321,8 +321,19 @@ const DashboardSidebar = ({ onLogout, user, userInitial }) => {
 
       <div className='mt-auto rounded-3xl border border-white/10 bg-white/[0.06] p-4'>
         <div className='flex items-center gap-3'>
-          <div className='flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950'>
-            {userInitial}
+          <div
+            translate='no'
+            className='notranslate flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950'
+          >
+            {user?.avatar?.url ? (
+              <img
+                src={user.avatar.url}
+                alt=''
+                className='h-full w-full object-cover'
+              />
+            ) : (
+              userInitial
+            )}
           </div>
           <div className='min-w-0'>
             <p className='truncate text-sm font-black text-white'>

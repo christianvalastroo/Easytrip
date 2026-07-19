@@ -3,6 +3,7 @@ import {
     ArrowLeft,
     AtSign,
     CalendarDays,
+    Camera,
     CheckCircle2,
     Mail,
     Pencil,
@@ -26,6 +27,9 @@ const Profile = () => {
     const [isLoading, setIsLoading] = useState(true)
     const [isEditing, setIsEditing] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
+    const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+    const [avatarError, setAvatarError] = useState('')
+    const [avatarSuccess, setAvatarSuccess] = useState('')
     const [error, setError] = useState('')
     const [success, setSuccess] = useState('')
 
@@ -139,6 +143,69 @@ const Profile = () => {
         }
     }
 
+    const handleAvatarChange = async (event) => {
+        const file = event.target.files?.[0]
+        event.target.value = ''
+
+        if (!file) {
+            return
+        }
+
+        setAvatarError('')
+        setAvatarSuccess('')
+
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+
+        if (!allowedTypes.includes(file.type)) {
+            setAvatarError('Choose a JPEG, PNG or WebP image')
+            return
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setAvatarError('Image size cannot exceed 5 MB')
+            return
+        }
+
+        setIsUploadingAvatar(true)
+
+        try {
+            const token = localStorage.getItem('token')
+            const uploadData = new FormData()
+            uploadData.append('avatar', file)
+
+            const response = await fetch(`${API_URL}/users/me/avatar`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: uploadData,
+            })
+
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
+
+            const responseText = await response.text()
+            const data = responseText ? JSON.parse(responseText) : null
+
+            if (!response.ok) {
+                throw new Error(data?.message || 'Unable to upload avatar')
+            }
+
+            setUser(data.user)
+            setAvatarSuccess(data.message || 'Avatar updated successfully')
+            window.dispatchEvent(new Event('auth-change'))
+        } catch (uploadError) {
+            setAvatarError(uploadError.message)
+        } finally {
+            setIsUploadingAvatar(false)
+        }
+    }
+
     if (isLoading) {
         return (
             <ProfileMessage
@@ -175,8 +242,50 @@ const Profile = () => {
                     <div className='px-5 py-7 sm:px-8 sm:py-9'>
                         <div className='flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between'>
                             <div className='flex flex-col gap-4 sm:flex-row sm:items-end'>
-                                <div className='flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-3xl font-black text-slate-950 shadow-xl sm:h-32 sm:w-32'>
-                                    {initials}
+                                <div
+                                    translate='no'
+                                    className='notranslate relative h-28 w-28 shrink-0 sm:h-32 sm:w-32'
+                                >
+                                    <div className='flex h-full w-full items-center justify-center overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-3xl font-black text-slate-950 shadow-xl'>
+                                        {user.avatar?.url ? (
+                                            <img
+                                                src={user.avatar.url}
+                                                alt={`${fullName || 'User'} avatar`}
+                                                className='h-full w-full object-cover'
+                                            />
+                                        ) : (
+                                            initials
+                                        )}
+                                    </div>
+
+                                    <label
+                                        htmlFor='avatar-upload'
+                                        aria-disabled={isUploadingAvatar}
+                                        aria-label='Change profile photo'
+                                        title='Change profile photo'
+                                        className={`absolute bottom-2 right-2 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-900 bg-cyan-300 text-slate-950 shadow-lg shadow-slate-950/40 transition hover:scale-105 hover:bg-cyan-200 ${isUploadingAvatar
+                                            ? 'cursor-not-allowed opacity-60'
+                                            : 'cursor-pointer'
+                                            }`}
+                                    >
+                                        {isUploadingAvatar ? (
+                                            <LoadingSpinner
+                                                label='Uploading profile photo'
+                                                showLabel={false}
+                                                size={16}
+                                            />
+                                        ) : (
+                                            <Camera size={17} />
+                                        )}
+                                    </label>
+                                    <input
+                                        id='avatar-upload'
+                                        type='file'
+                                        accept='image/jpeg,image/png,image/webp'
+                                        onChange={handleAvatarChange}
+                                        disabled={isUploadingAvatar}
+                                        className='sr-only'
+                                    />
                                 </div>
                                 <div className='pb-1'>
                                     <p className='text-sm font-bold uppercase tracking-[0.2em] text-cyan-300'>
@@ -205,6 +314,18 @@ const Profile = () => {
                                 </button>
                             )}
                         </div>
+
+                        {avatarSuccess && (
+                            <div className='mt-5 flex items-center gap-2 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-200'>
+                                <CheckCircle2 size={17} /> {avatarSuccess}
+                            </div>
+                        )}
+
+                        {avatarError && (
+                            <div className='mt-5 rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm font-semibold text-rose-200'>
+                                {avatarError}
+                            </div>
+                        )}
                     </div>
                 </section>
 
