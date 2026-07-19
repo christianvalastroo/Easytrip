@@ -11,6 +11,7 @@ import {
     X,
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 import {
     clearSession,
@@ -139,7 +140,11 @@ const Profile = () => {
     }
 
     if (isLoading) {
-        return <ProfileMessage message='Loading profile...' />
+        return (
+            <ProfileMessage
+                message={<LoadingSpinner label='Loading profile...' />}
+            />
+        )
     }
 
     if (!user) {
