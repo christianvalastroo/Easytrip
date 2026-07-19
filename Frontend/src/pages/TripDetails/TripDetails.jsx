@@ -1295,7 +1295,11 @@ const ChecklistCard = ({
                         Checklist
                     </p>
                     <p className='text-xs font-semibold text-slate-400'>
-                        {isSaving ? 'Saving checklist...' : 'Saved with this trip'}
+                        {isSaving ? (
+                            <LoadingSpinner label='Saving checklist...' size={14} />
+                        ) : (
+                            'Saved with this trip'
+                        )}
                     </p>
                 </div>
             </div>
@@ -1305,12 +1309,14 @@ const ChecklistCard = ({
                     type='text'
                     value={newItem}
                     onChange={(event) => onChangeNewItem(event.target.value)}
+                    disabled={isSaving}
                     placeholder='Add checklist item'
-                    className='min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-white/15'
+                    className='min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60'
                 />
                 <button
                     type='submit'
-                    className='flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl bg-cyan-400 text-slate-950 transition-all duration-300 hover:-translate-y-0.5'
+                    disabled={isSaving}
+                    className='flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl bg-cyan-400 text-slate-950 transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60'
                 >
                     <Plus size={18} />
                 </button>
@@ -1333,19 +1339,22 @@ const ChecklistCard = ({
                                         onChange={(event) =>
                                             onChangeEditingValue(event.target.value)
                                         }
-                                        className='min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-300'
+                                        disabled={isSaving}
+                                        className='min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950/60 px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-300 disabled:cursor-not-allowed disabled:opacity-60'
                                     />
                                     <button
                                         type='button'
                                         onClick={() => onSaveEdit(item)}
-                                        className='flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-emerald-400 text-slate-950'
+                                        disabled={isSaving}
+                                        className='flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl bg-emerald-400 text-slate-950 disabled:cursor-not-allowed disabled:opacity-60'
                                     >
                                         <Check size={16} />
                                     </button>
                                     <button
                                         type='button'
                                         onClick={onCancelEdit}
-                                        className='flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/10 text-slate-200'
+                                        disabled={isSaving}
+                                        className='flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/10 text-slate-200 disabled:cursor-not-allowed disabled:opacity-60'
                                     >
                                         <X size={16} />
                                     </button>
@@ -1357,7 +1366,8 @@ const ChecklistCard = ({
                                             type='checkbox'
                                             checked={item.isCompleted}
                                             onChange={() => onToggle(item)}
-                                            className='h-4 w-4 shrink-0 cursor-pointer accent-cyan-400'
+                                            disabled={isSaving}
+                                            className='h-4 w-4 shrink-0 cursor-pointer accent-cyan-400 disabled:cursor-not-allowed disabled:opacity-60'
                                         />
                                         <span
                                             className={`min-w-0 break-words text-sm font-semibold ${item.isCompleted
@@ -1372,14 +1382,16 @@ const ChecklistCard = ({
                                     <button
                                         type='button'
                                         onClick={() => onStartEdit(item)}
-                                        className='flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/10 text-slate-300 transition-all duration-300 hover:text-white'
+                                        disabled={isSaving}
+                                        className='flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/10 text-slate-300 transition-all duration-300 hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
                                     >
                                         <Pencil size={15} />
                                     </button>
                                     <button
                                         type='button'
                                         onClick={() => onDelete(item)}
-                                        className='flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-red-400/20 bg-red-500/10 text-red-200 transition-all duration-300 hover:bg-red-500/15'
+                                        disabled={isSaving}
+                                        className='flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-red-400/20 bg-red-500/10 text-red-200 transition-all duration-300 hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-60'
                                     >
                                         <Trash2 size={15} />
                                     </button>
