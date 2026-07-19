@@ -55,6 +55,7 @@ const TripDetails = () => {
     const [isSavingActivity, setIsSavingActivity] = useState(false)
     const [isDeletingTrip, setIsDeletingTrip] = useState(false)
     const [isSavingChecklist, setIsSavingChecklist] = useState(false)
+    const [checklistError, setChecklistError] = useState('')
     const [showActivityForm, setShowActivityForm] = useState(false)
     const [checklistItems, setChecklistItems] = useState(defaultChecklist)
     const [newChecklistItem, setNewChecklistItem] = useState('')
@@ -345,6 +346,7 @@ const TripDetails = () => {
 
     const saveChecklist = async (nextChecklist) => {
         const token = localStorage.getItem('token')
+        const previousChecklist = checklistItems
 
         if (!token) {
             navigate('/login')
@@ -352,6 +354,7 @@ const TripDetails = () => {
         }
 
         setIsSavingChecklist(true)
+        setChecklistError('')
 
         try {
             const response = await fetch(`${API_URL}/trips/${id}`, {
@@ -380,7 +383,8 @@ const TripDetails = () => {
 
             setTrip(data.trip)
         } catch (error) {
-            setError(error.message)
+            setChecklistItems(previousChecklist)
+            setChecklistError(error.message)
         } finally {
             setIsSavingChecklist(false)
         }
@@ -891,6 +895,7 @@ const TripDetails = () => {
                                 <ChecklistCard
                                     editingItem={editingChecklistItem}
                                     editingValue={editingChecklistValue}
+                                    error={checklistError}
                                     isSaving={isSavingChecklist}
                                     items={checklistItems}
                                     newItem={newChecklistItem}
@@ -1277,6 +1282,7 @@ const ActivityForm = ({
 const ChecklistCard = ({
     editingItem,
     editingValue,
+    error,
     isSaving,
     items,
     newItem,
@@ -1308,6 +1314,12 @@ const ChecklistCard = ({
                     </p>
                 </div>
             </div>
+
+            {error && (
+                <p className='mt-4 rounded-2xl border border-red-400/30 bg-red-500/10 px-3 py-2 text-sm font-semibold text-red-200'>
+                    {error}
+                </p>
+            )}
 
             <form onSubmit={onAdd} className='mt-5 flex gap-2'>
                 <input
