@@ -29,6 +29,16 @@ const tripSchema = new mongoose.Schema(
             type: String,
             trim: true
         },
+        coverImage: {
+            url: {
+                type: String,
+                trim: true
+            },
+            publicId: {
+                type: String,
+                trim: true
+            }
+        },
         checklist: {
             type: [
                 {

@@ -204,6 +204,13 @@ const TripCard = ({ onOpenDetails, trip }) => {
   return (
     <article className='overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 shadow-xl shadow-slate-950/25 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-slate-800/80 hover:shadow-cyan-500/10'>
       <div className='relative h-44 overflow-hidden bg-gradient-to-br from-blue-500 via-cyan-400 to-emerald-300 sm:h-56'>
+        {trip.coverImage?.url && (
+          <img
+            src={trip.coverImage.url}
+            alt={`${trip.destination} trip cover`}
+            className='absolute inset-0 h-full w-full object-cover'
+          />
+        )}
         <div className='absolute inset-0 bg-[radial-gradient(circle_at_25%_20%,rgba(255,255,255,0.45),transparent_28%),linear-gradient(135deg,rgba(15,23,42,0.05),rgba(15,23,42,0.55))]' />
         <div className='absolute bottom-3 left-3 rounded-full border border-white/20 bg-slate-950/40 px-3 py-1 text-xs font-black text-white backdrop-blur'>
           {trip.destination}

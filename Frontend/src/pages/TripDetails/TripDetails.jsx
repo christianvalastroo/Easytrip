@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
     ArrowLeft,
     CalendarDays,
+    Camera,
     Check,
     CheckSquare,
     Clock,
@@ -75,8 +76,73 @@ const TripDetails = () => {
     const [activityEditError, setActivityEditError] = useState('')
     const [isDeleteTripDialogOpen, setIsDeleteTripDialogOpen] = useState(false)
     const [deleteTripError, setDeleteTripError] = useState('')
+    const [isUploadingCover, setIsUploadingCover] = useState(false)
+    const [coverError, setCoverError] = useState('')
+    const [coverSuccess, setCoverSuccess] = useState('')
     const [activityToDelete, setActivityToDelete] = useState(null)
     const [checklistItemToDelete, setChecklistItemToDelete] = useState(null)
+
+    const handleCoverChange = async (event) => {
+        const file = event.target.files?.[0]
+        event.target.value = ''
+
+        if (!file) {
+            return
+        }
+
+        setCoverError('')
+        setCoverSuccess('')
+
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
+
+        if (!allowedTypes.includes(file.type)) {
+            setCoverError('Choose a JPEG, PNG or WebP image')
+            return
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            setCoverError('Image size cannot exceed 5 MB')
+            return
+        }
+
+        setIsUploadingCover(true)
+
+        try {
+            const token = localStorage.getItem('token')
+            const uploadData = new FormData()
+            uploadData.append('cover', file)
+
+            const response = await fetch(`${API_URL}/trips/${id}/cover`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                body: uploadData,
+            })
+
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
+
+            const responseText = await response.text()
+            const data = responseText ? JSON.parse(responseText) : null
+
+            if (!response.ok) {
+                throw new Error(data?.message || 'Unable to upload trip cover')
+            }
+
+            setTrip(data.trip)
+            setCoverSuccess(data.message || 'Trip cover updated successfully')
+        } catch (uploadError) {
+            setCoverError(uploadError.message)
+        } finally {
+            setIsUploadingCover(false)
+        }
+    }
 
     useEffect(() => {
         const token = localStorage.getItem('token')
@@ -666,9 +732,55 @@ const TripDetails = () => {
                         </button>
 
                         <section className='relative overflow-hidden rounded-3xl border border-white/10 bg-slate-900 shadow-2xl shadow-slate-950/40'>
-                            <div className='absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900' />
+                            {trip.coverImage?.url && (
+                                <img
+                                    src={trip.coverImage.url}
+                                    alt={`${trip.destination} trip cover`}
+                                    className='absolute inset-0 h-full w-full object-cover'
+                                />
+                            )}
+                            <div
+                                className={`absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 ${trip.coverImage?.url ? 'opacity-20' : ''}`}
+                            />
                             <div className='absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(34,211,238,0.22),transparent_30%),radial-gradient(circle_at_82%_12%,rgba(16,185,129,0.14),transparent_26%)]' />
+                            {trip.coverImage?.url && (
+                                <div className='absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/65 to-slate-900/20' />
+                            )}
                             <div className='absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent' />
+
+                            <div
+                                translate='no'
+                                className='notranslate absolute right-4 top-4 z-20 sm:right-6 sm:top-6'
+                            >
+                                <label
+                                    htmlFor='trip-cover-upload'
+                                    aria-disabled={isUploadingCover}
+                                    className={`inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/20 bg-slate-950/60 text-cyan-100 shadow-lg backdrop-blur transition hover:border-cyan-300/50 hover:bg-slate-900/80 ${isUploadingCover
+                                        ? 'cursor-not-allowed opacity-60'
+                                        : 'cursor-pointer'
+                                        }`}
+                                    aria-label='Change trip cover'
+                                    title='Change trip cover'
+                                >
+                                    {isUploadingCover ? (
+                                        <LoadingSpinner
+                                            label='Uploading trip cover'
+                                            showLabel={false}
+                                            size={17}
+                                        />
+                                    ) : (
+                                        <Camera size={19} />
+                                    )}
+                                </label>
+                                <input
+                                    id='trip-cover-upload'
+                                    type='file'
+                                    accept='image/jpeg,image/png,image/webp'
+                                    onChange={handleCoverChange}
+                                    disabled={isUploadingCover}
+                                    className='sr-only'
+                                />
+                            </div>
 
                             <div className='relative z-10 flex min-h-[18rem] flex-col justify-end p-5 sm:min-h-[22rem] sm:p-8'>
                                 <div className='max-w-4xl'>
@@ -695,6 +807,18 @@ const TripDetails = () => {
                             </div>
 
                         </section>
+
+                        {coverSuccess && (
+                            <div className='rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-200'>
+                                {coverSuccess}
+                            </div>
+                        )}
+
+                        {coverError && (
+                            <div className='rounded-2xl border border-rose-400/20 bg-rose-400/10 px-4 py-3 text-sm font-semibold text-rose-200'>
+                                {coverError}
+                            </div>
+                        )}
 
                         <section className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
                             <DetailBox
