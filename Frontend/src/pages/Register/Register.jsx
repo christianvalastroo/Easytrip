@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import homeHeroImage from '../../assets/home-hero.png'
+import homeHeroImage from '../../assets/home-hero.jpg'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 
@@ -71,7 +71,7 @@ const Register = () => {
           <div className='relative h-72 sm:h-96 lg:h-[620px]'>
             <img
               src={homeHeroImage}
-              alt='Panorama costiero al tramonto'
+              alt='Coastline at sunset'
               className='h-full w-full object-cover'
             />
             <div className='absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent' />

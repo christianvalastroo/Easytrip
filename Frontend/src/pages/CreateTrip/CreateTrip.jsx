@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { ArrowLeft, CalendarDays, MapPin, Plane, Wallet } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import homeHeroImage from '../../assets/home-hero.png'
+import homeHeroImage from '../../assets/home-hero.jpg'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 import {

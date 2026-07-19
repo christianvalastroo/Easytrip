@@ -15,7 +15,7 @@ import {
   UserRound,
 } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import homeHeroImage from '../../assets/home-hero.png'
+import homeHeroImage from '../../assets/home-hero.jpg'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 import {
