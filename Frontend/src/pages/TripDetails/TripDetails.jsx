@@ -15,6 +15,7 @@ import {
     X,
 } from 'lucide-react'
 import { useNavigate, useParams } from 'react-router-dom'
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 import {
     clearSession,
@@ -642,7 +643,9 @@ const TripDetails = () => {
         <main className='min-h-[calc(100vh-65px)] bg-slate-950 px-4 py-6 text-white sm:px-6 lg:px-8'>
             <section className='mx-auto max-w-7xl space-y-6'>
                 {isLoading ? (
-                    <TripDetailsMessage message='Loading trip...' />
+                    <TripDetailsMessage
+                        message={<LoadingSpinner label='Loading trip...' />}
+                    />
                 ) : error ? (
                     <TripDetailsMessage isError message={error} />
                 ) : !trip ? (
