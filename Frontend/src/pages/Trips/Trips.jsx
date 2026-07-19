@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, ArrowRight, Plus, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 import {
   clearSession,
@@ -170,7 +171,9 @@ const Trips = () => {
         </section>
 
         {isLoading ? (
-          <TripsMessage message='Loading trips...' />
+          <TripsMessage
+            message={<LoadingSpinner label='Loading trips...' />}
+          />
         ) : error ? (
           <TripsMessage isError message={error} />
         ) : visibleTrips.length > 0 ? (
