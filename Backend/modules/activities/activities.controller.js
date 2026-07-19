@@ -43,7 +43,7 @@ const getActivitiesByTrip = async (req, res, next) => {
         const activities = await Activity.find({
             trip: req.params.tripId,
             owner: req.user.id
-        }).sort({ date: 1 })
+        }).sort({ date: 1, time: 1 })
 
         res.status(200).json(activities)
     } catch (error) {

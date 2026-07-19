@@ -1,7 +1,7 @@
 const mongoose = require("mongoose")
 const BadRequestException = require("../exceptions/BadRequestException")
 
-const allowedActivityFields = ["title", "description", "date", "location", "cost", "type"]
+const allowedActivityFields = ["title", "description", "date", "time", "location", "cost", "type"]
 
 const isValidDate = (date) => {
     return !Number.isNaN(new Date(date).getTime())
@@ -10,6 +10,12 @@ const isValidDate = (date) => {
 const validateActivityDate = (date) => {
     if (date !== undefined && !isValidDate(date)) {
         throw new BadRequestException("Activity date must be a valid date")
+    }
+}
+
+const validateActivityTime = (time) => {
+    if (time !== undefined && time !== '' && !/^([01]\d|2[0-3]):[0-5]\d$/.test(time)) {
+        throw new BadRequestException("Activity time must use the HH:mm format")
     }
 }
 
@@ -31,6 +37,7 @@ const validateCreateActivity = (req, res, next) => {
     }
 
     validateActivityDate(date)
+    validateActivityTime(req.body.time)
     validateCost(req.body.cost)
 
     next()
@@ -46,10 +53,11 @@ const validateUpdateActivity = (req, res, next) => {
     const hasInvalidField = fields.some((field) => !allowedActivityFields.includes(field))
 
     if (hasInvalidField) {
-        throw new BadRequestException("Only title, description, date, location, cost and type can be updated")
+        throw new BadRequestException("Only title, description, date, time, location, cost and type can be updated")
     }
 
     validateActivityDate(req.body.date)
+    validateActivityTime(req.body.time)
     validateCost(req.body.cost)
 
     next()

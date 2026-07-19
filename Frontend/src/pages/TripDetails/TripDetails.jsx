@@ -4,6 +4,7 @@ import {
     CalendarDays,
     Check,
     CheckSquare,
+    Clock,
     FileText,
     ListChecks,
     MapPin,
@@ -34,6 +35,7 @@ const initialActivityFormData = {
     title: '',
     description: '',
     date: '',
+    time: '',
     location: '',
     cost: '',
     type: 'other',
@@ -274,6 +276,7 @@ const TripDetails = () => {
                 title: activityFormData.title.trim(),
                 description: activityFormData.description.trim(),
                 date: activityFormData.date,
+                time: activityFormData.time || undefined,
                 location: activityFormData.location.trim(),
                 cost: activityFormData.cost === '' ? 0 : Number(activityFormData.cost),
                 type: activityFormData.type,
@@ -306,7 +309,13 @@ const TripDetails = () => {
 
             setActivities((prevActivities) => {
                 return [...prevActivities, data.activity].sort((firstActivity, secondActivity) => {
-                    return new Date(firstActivity.date) - new Date(secondActivity.date)
+                    const dateDifference = new Date(firstActivity.date) - new Date(secondActivity.date)
+
+                    if (dateDifference !== 0) {
+                        return dateDifference
+                    }
+
+                    return (firstActivity.time || '').localeCompare(secondActivity.time || '')
                 })
             })
             setActivityFormData(initialActivityFormData)
@@ -625,6 +634,13 @@ const ActivityCard = ({ activity }) => {
                 </p>
             )}
 
+            {activity.time && (
+                <p className='mt-3 flex items-center gap-2 text-sm font-bold text-cyan-100'>
+                    <Clock size={16} />
+                    {activity.time}
+                </p>
+            )}
+
             <p className='mt-3 text-sm font-bold text-slate-400'>
                 Cost: {formatCurrency(activity.cost)}
             </p>
@@ -635,9 +651,13 @@ const ActivityCard = ({ activity }) => {
 const ActivityForm = ({
     error,
     formData,
+    formIdPrefix = 'activity',
+    isEditing = false,
     isLoading,
+    onCancel,
     onChange,
     onSubmit,
+    submitLabel = 'Save activity',
     trip,
 }) => {
     return (
@@ -647,7 +667,7 @@ const ActivityForm = ({
         >
             <div className='grid gap-4 sm:grid-cols-2'>
                 <FormField
-                    id='activity-title'
+                    id={`${formIdPrefix}-title`}
                     label='Title'
                     name='title'
                     onChange={onChange}
@@ -657,7 +677,7 @@ const ActivityForm = ({
                 />
 
                 <FormField
-                    id='activity-location'
+                    id={`${formIdPrefix}-location`}
                     label='Location'
                     name='location'
                     onChange={onChange}
@@ -666,7 +686,7 @@ const ActivityForm = ({
                 />
 
                 <FormField
-                    id='activity-date'
+                    id={`${formIdPrefix}-date`}
                     label='Date'
                     max={formatDateInput(trip.endDate)}
                     min={formatDateInput(trip.startDate)}
@@ -678,7 +698,16 @@ const ActivityForm = ({
                 />
 
                 <FormField
-                    id='activity-cost'
+                    id={`${formIdPrefix}-time`}
+                    label='Time'
+                    name='time'
+                    onChange={onChange}
+                    type='time'
+                    value={formData.time}
+                />
+
+                <FormField
+                    id={`${formIdPrefix}-cost`}
                     label='Cost'
                     min='0'
                     name='cost'
@@ -690,13 +719,13 @@ const ActivityForm = ({
 
                 <div>
                     <label
-                        htmlFor='activity-type'
+                        htmlFor={`${formIdPrefix}-type`}
                         className='text-sm font-bold text-slate-200'
                     >
                         Type
                     </label>
                     <select
-                        id='activity-type'
+                        id={`${formIdPrefix}-type`}
                         name='type'
                         value={formData.type}
                         onChange={onChange}
@@ -713,13 +742,13 @@ const ActivityForm = ({
 
             <div className='mt-4'>
                 <label
-                    htmlFor='activity-description'
+                    htmlFor={`${formIdPrefix}-description`}
                     className='text-sm font-bold text-slate-200'
                 >
                     Description
                 </label>
                 <textarea
-                    id='activity-description'
+                    id={`${formIdPrefix}-description`}
                     name='description'
                     value={formData.description}
                     onChange={onChange}
@@ -735,14 +764,27 @@ const ActivityForm = ({
                 </p>
             )}
 
-            <button
-                type='submit'
-                disabled={isLoading}
-                className='mt-5 inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
-            >
-                <Plus size={17} />
-                {isLoading ? 'Saving...' : 'Save activity'}
-            </button>
+            <div className='mt-5 flex flex-wrap gap-2'>
+                <button
+                    type='submit'
+                    disabled={isLoading}
+                    className='inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
+                >
+                    {isEditing ? <Check size={17} /> : <Plus size={17} />}
+                    {isLoading ? 'Saving...' : submitLabel}
+                </button>
+
+                {onCancel && (
+                    <button
+                        type='button'
+                        onClick={onCancel}
+                        disabled={isLoading}
+                        className='inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-70'
+                    >
+                        <X size={17} /> Cancel
+                    </button>
+                )}
+            </div>
         </form>
     )
 }
