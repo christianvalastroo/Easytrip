@@ -765,8 +765,13 @@ const TripDetails = () => {
                                                     disabled={isSavingNotes}
                                                     className='inline-flex cursor-pointer items-center gap-2 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-70'
                                                 >
-                                                    <Check size={16} />
-                                                    {isSavingNotes ? 'Saving...' : 'Save notes'}
+                                                    {isSavingNotes ? (
+                                                        <LoadingSpinner label='Saving...' size={16} />
+                                                    ) : (
+                                                        <>
+                                                            <Check size={16} /> Save notes
+                                                        </>
+                                                    )}
                                                 </button>
                                                 <button
                                                     type='button'
