@@ -106,11 +106,11 @@ const CreateTrip = () => {
                     <div className='relative z-10 flex h-full min-h-[24rem] flex-col justify-between p-6 sm:p-8'>
                         <button
                             type='button'
-                            onClick={() => navigate('/trips')}
+                            onClick={() => navigate('/dashboard')}
                             className='inline-flex w-fit cursor-pointer items-center gap-2 rounded-2xl border border-white/20 bg-white/15 px-4 py-2 text-sm font-bold text-white backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/25'
                         >
                             <ArrowLeft size={17} />
-                            Back to trips
+                            Back to dashboard
                         </button>
 
                         <div>
@@ -226,7 +226,7 @@ const CreateTrip = () => {
                         <div className='mt-7 flex flex-col gap-3 sm:flex-row sm:justify-end'>
                             <button
                                 type='button'
-                                onClick={() => navigate('/trips')}
+                                onClick={() => navigate('/dashboard')}
                                 className='cursor-pointer rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-slate-200 transition-all duration-300 hover:border-cyan-400/30 hover:bg-white/15 hover:text-white'
                             >
                                 Cancel

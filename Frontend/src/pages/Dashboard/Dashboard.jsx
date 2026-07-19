@@ -347,7 +347,8 @@ const DashboardSidebar = ({ onLogout, user, userInitial }) => {
 const SidebarLinks = ({ onClick }) => {
   const navigate = useNavigate()
   const menuItems = [
-    { icon: Map, label: 'My trips', isActive: true },
+    { icon: Map, label: 'Dashboard', path: '/dashboard', isActive: true },
+    { icon: Plane, label: 'My trips', path: '/trips' },
     { icon: UserRound, label: 'Profile', path: '/profile' },
     { icon: Settings, label: 'Settings', path: '/settings' },
   ]
@@ -390,29 +391,43 @@ const SidebarLink = ({ item, onClick }) => {
 
 const QuickActions = () => {
   const actions = [
-    { icon: Plus, label: 'New trip' },
-    { icon: ClipboardList, label: 'Add activity' },
-    { icon: NotebookPen, label: 'Notes' },
-    { icon: Banknote, label: 'Budget' },
+    {
+      icon: Plus,
+      label: 'New trip',
+      description: 'Plan destination, dates and budget.',
+    },
+    {
+      icon: ClipboardList,
+      label: 'Add activity',
+      description: 'Organize what to do during your trip.',
+    },
+    {
+      icon: NotebookPen,
+      label: 'Notes',
+      description: 'Keep useful details and reminders.',
+    },
+    {
+      icon: Banknote,
+      label: 'Budget',
+      description: 'Compare your budget and activity costs.',
+    },
   ]
 
   return (
     <section className='grid grid-cols-2 gap-3 xl:grid-cols-4'>
       {actions.map((action) => (
-        <QuickActionButton key={action.label} action={action} />
+        <FeatureCard key={action.label} action={action} />
       ))}
     </section>
   )
 }
 
-const QuickActionButton = ({ action }) => {
+const FeatureCard = ({ action }) => {
   const Icon = action.icon
 
   return (
-    <button
-      type='button'
-      disabled
-      className='aspect-square cursor-pointer rounded-2xl border border-white/10 bg-slate-900/70 p-4 text-left opacity-80 shadow-xl shadow-slate-950/25 backdrop-blur-xl transition-all duration-300 sm:aspect-auto sm:p-5'
+    <article
+      className='aspect-square rounded-2xl border border-white/10 bg-slate-900/70 p-4 text-left shadow-xl shadow-slate-950/25 backdrop-blur-xl sm:aspect-auto sm:p-5'
     >
       <span className='flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-cyan-200'>
         <Icon size={18} />
@@ -420,7 +435,10 @@ const QuickActionButton = ({ action }) => {
       <span className='mt-4 block text-sm font-black text-white'>
         {action.label}
       </span>
-    </button>
+      <p className='mt-1 text-xs leading-relaxed text-slate-400'>
+        {action.description}
+      </p>
+    </article>
   )
 }
 
