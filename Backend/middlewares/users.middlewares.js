@@ -43,6 +43,34 @@ const validateLogin = (req, res, next) => {
     next()
 }
 
+const validateForgotPassword = (req, res, next) => {
+    const { email } = req.body
+
+    if (!email || typeof email !== "string" || !emailRegex.test(email)) {
+        throw new BadRequestException("A valid email is required")
+    }
+
+    next()
+}
+
+const validateResetPassword = (req, res, next) => {
+    const { token, password } = req.body
+
+    if (!token || !password) {
+        throw new BadRequestException("Reset token and new password are required")
+    }
+
+    if (typeof token !== "string" || typeof password !== "string") {
+        throw new BadRequestException("Reset token and password must be valid text")
+    }
+
+    if (password.length < minPasswordLength) {
+        throw new BadRequestException("Password must be at least 8 characters long")
+    }
+
+    next()
+}
+
 const validateUpdateUser = (req, res, next) => {
     const allowedFields = ["firstName", "lastName"]
     const fields = Object.keys(req.body)
@@ -85,6 +113,8 @@ const validateUpdatePassword = (req, res, next) => {
 module.exports = {
     validateRegister,
     validateLogin,
+    validateForgotPassword,
+    validateResetPassword,
     validateUpdateUser,
     validateUpdatePassword
 }
