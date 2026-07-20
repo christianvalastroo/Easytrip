@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, ArrowRight, Plus, Search } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
 import {
@@ -11,6 +11,8 @@ import {
 
 const Trips = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const deletionMessage = location.state?.message
   const [trips, setTrips] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
@@ -60,6 +62,12 @@ const Trips = () => {
     fetchTrips()
   }, [navigate])
 
+  useEffect(() => {
+    if (deletionMessage) {
+      navigate(location.pathname, { replace: true, state: {} })
+    }
+  }, [deletionMessage, location.pathname, navigate])
+
   const visibleTrips = useMemo(() => {
     const today = new Date()
     const normalizedSearchTerm = searchTerm.trim().toLowerCase()
@@ -95,6 +103,12 @@ const Trips = () => {
   return (
     <main className='min-h-[calc(100vh-65px)] bg-slate-950 px-4 py-6 text-white sm:px-6 lg:px-8'>
       <section className='mx-auto max-w-7xl space-y-6'>
+        {deletionMessage && (
+          <p className='rounded-2xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm font-semibold text-emerald-100'>
+            {deletionMessage}
+          </p>
+        )}
+
         <button
           type='button'
           onClick={() => navigate('/dashboard')}
