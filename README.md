@@ -6,6 +6,8 @@
 
 🌍 Destinazioni · 📅 Attività · 💰 Budget · ✅ Checklist
 
+### [🌐 Prova EasyTrip online](https://easytrip-sigma.vercel.app)
+
 </div>
 
 EasyTrip è un'applicazione full stack per organizzare viaggi, attività, budget, note e checklist in un unico spazio personale.
@@ -156,7 +158,7 @@ Le rotte private richiedono un token JWT nell'header `Authorization`.
 
 ## 🌐 Pubblicazione
 
-Il link alla versione online sarà aggiunto dopo il deployment del frontend e del backend.
+L'applicazione è disponibile online su [easytrip-sigma.vercel.app](https://easytrip-sigma.vercel.app).
 
 ## 👨‍💻 Autore
 
