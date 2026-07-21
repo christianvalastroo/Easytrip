@@ -664,10 +664,7 @@ const TripDetails = () => {
                 throw new Error(data.message || 'Trip deletion failed')
             }
 
-            navigate('/trips', {
-                replace: true,
-                state: { message: data.message || 'Trip deleted successfully' },
-            })
+            window.location.replace('/trips')
         } catch (error) {
             setDeleteTripError(error.message)
         } finally {

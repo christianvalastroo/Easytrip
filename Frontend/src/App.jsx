@@ -6,9 +6,11 @@ import Navbar from './components/Navbar/Navbar'
 const App = () => {
   return (
     <BrowserRouter>
-      <Navbar />
-      <AppRoutes />
-      <Footer />
+      <div translate='no' className='notranslate'>
+        <Navbar />
+        <AppRoutes />
+        <Footer />
+      </div>
     </BrowserRouter>
   )
 }
