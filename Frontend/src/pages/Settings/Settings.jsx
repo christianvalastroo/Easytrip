@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {
     ArrowLeft,
+    BookOpen,
     CheckCircle2,
     Info,
     KeyRound,
@@ -35,10 +36,50 @@ const Settings = () => {
     const [confirmation, setConfirmation] = useState('')
     const [isDeleting, setIsDeleting] = useState(false)
     const [error, setError] = useState('')
+    const [guideError, setGuideError] = useState('')
+    const [isRestartingGuide, setIsRestartingGuide] = useState(false)
 
     const handleLogout = () => {
         clearSession()
         navigate('/login')
+    }
+
+    const handleRestartGuide = async () => {
+        setGuideError('')
+        setIsRestartingGuide(true)
+
+        try {
+            const token = localStorage.getItem('token')
+            const response = await fetch(`${API_URL}/users/me/onboarding`, {
+                method: 'PUT',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ completed: false }),
+            })
+
+            if (isAuthError(response)) {
+                clearSession()
+                navigate('/login', {
+                    state: { message: SESSION_EXPIRED_MESSAGE },
+                })
+                return
+            }
+
+            const responseText = await response.text()
+            const data = responseText ? JSON.parse(responseText) : {}
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Unable to restart the guide')
+            }
+
+            navigate('/dashboard')
+        } catch (restartError) {
+            setGuideError(restartError.message)
+        } finally {
+            setIsRestartingGuide(false)
+        }
     }
 
     const handlePasswordChange = (event) => {
@@ -265,6 +306,41 @@ const Settings = () => {
                                 </button>
                             </div>
                         </form>
+                    </SettingsSection>
+
+                    <SettingsSection
+                        icon={BookOpen}
+                        title='Quick guide'
+                        description='Review how to create and organize your trips.'
+                    >
+                        <div className='flex flex-col gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between'>
+                            <div>
+                                <p className='font-bold text-white'>EasyTrip introduction</p>
+                                <p className='mt-1 text-sm text-slate-400'>
+                                    Replay the four-step introduction shown after your first login.
+                                </p>
+                            </div>
+                            <button
+                                type='button'
+                                onClick={handleRestartGuide}
+                                disabled={isRestartingGuide}
+                                className='flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2.5 text-sm font-black text-cyan-100 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-60'
+                            >
+                                {isRestartingGuide ? (
+                                    <LoadingSpinner label='Opening...' size={17} />
+                                ) : (
+                                    <>
+                                        <BookOpen size={17} /> Review guide
+                                    </>
+                                )}
+                            </button>
+                        </div>
+
+                        {guideError && (
+                            <p className='mt-4 rounded-xl border border-rose-400/20 bg-rose-400/10 px-3 py-2 text-sm font-semibold text-rose-200'>
+                                {guideError}
+                            </p>
+                        )}
                     </SettingsSection>
 
                     <SettingsSection

@@ -110,11 +110,20 @@ const validateUpdatePassword = (req, res, next) => {
     next()
 }
 
+const validateUpdateOnboarding = (req, res, next) => {
+    if (typeof req.body.completed !== "boolean") {
+        throw new BadRequestException("Onboarding status must be true or false")
+    }
+
+    next()
+}
+
 module.exports = {
     validateRegister,
     validateLogin,
     validateForgotPassword,
     validateResetPassword,
     validateUpdateUser,
-    validateUpdatePassword
+    validateUpdatePassword,
+    validateUpdateOnboarding
 }

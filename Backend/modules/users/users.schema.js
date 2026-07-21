@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
             type: Date,
             select: false
         },
+        onboardingCompleted: {
+            type: Boolean,
+            default: false
+        },
         avatar: {
             url: {
                 type: String,

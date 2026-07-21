@@ -17,6 +17,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.jpg'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
+import OnboardingTour from '../../components/OnboardingTour/OnboardingTour'
 import { API_URL } from '../../config/api'
 import {
   clearSession,
@@ -151,6 +152,17 @@ const Dashboard = () => {
     navigate('/login')
   }
 
+  const handleOnboardingSessionExpired = (message) => {
+    navigate('/login', { state: { message } })
+  }
+
+  const handleOnboardingClose = () => {
+    setUser((currentUser) => ({
+      ...currentUser,
+      onboardingCompleted: true,
+    }))
+  }
+
   const userInitial =
     user?.firstName?.charAt(0).toUpperCase() ||
     user?.email?.charAt(0).toUpperCase() ||
@@ -254,6 +266,13 @@ const Dashboard = () => {
           )}
         </section>
       </div>
+
+      {!isLoading && !error && user && !user.onboardingCompleted && (
+        <OnboardingTour
+          onClose={handleOnboardingClose}
+          onSessionExpired={handleOnboardingSessionExpired}
+        />
+      )}
     </main>
   )
 }

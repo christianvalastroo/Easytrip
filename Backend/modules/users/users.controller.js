@@ -96,6 +96,27 @@ const updateCurrentUserPassword = async (req, res, next) => {
     }
 }
 
+const updateCurrentUserOnboarding = async (req, res, next) => {
+    try {
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { onboardingCompleted: req.body.completed },
+            { new: true, runValidators: true }
+        ).select("-password")
+
+        if (!user) {
+            throw new NotFoundException("User not found")
+        }
+
+        res.status(200).json({
+            message: "Onboarding status updated successfully",
+            user
+        })
+    } catch (error) {
+        next(error)
+    }
+}
+
 const updateCurrentUserAvatar = async (req, res, next) => {
     let uploadedAvatar
     let isAvatarSaved = false
@@ -173,6 +194,7 @@ module.exports = {
     getCurrentUser,
     updateCurrentUser,
     updateCurrentUserPassword,
+    updateCurrentUserOnboarding,
     updateCurrentUserAvatar,
     deleteCurrentUser
 }
