@@ -11,8 +11,6 @@ import Trips from '../pages/Trips/Trips'
 import PrivateRoutes from './PrivateRoutes'
 import Profile from '../pages/Profile/Profile'
 import Settings from '../pages/Settings/Settings'
-import ForgotPassword from '../pages/ForgotPassword/ForgotPassword'
-import ResetPassword from '../pages/ResetPassword/ResetPassword'
 
 const AppRoutes = () => {
   return (
@@ -20,8 +18,6 @@ const AppRoutes = () => {
       <Route path='/' element={<Home />} />
       <Route path='/login' element={<Login />} />
       <Route path='/register' element={<Register />} />
-      <Route path='/forgot-password' element={<ForgotPassword />} />
-      <Route path='/reset-password' element={<ResetPassword />} />
 
       <Route element={<PrivateRoutes />}>
         <Route path='/dashboard' element={<Dashboard />} />

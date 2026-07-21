@@ -7,7 +7,7 @@ import { useLanguage } from '../../i18n/language-context'
 
 const Register = () => {
   const navigate = useNavigate()
-  const { language, t } = useLanguage()
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -41,7 +41,7 @@ const Register = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ ...formData, language }),
+        body: JSON.stringify(formData),
       })
 
       const responseText = await response.text()

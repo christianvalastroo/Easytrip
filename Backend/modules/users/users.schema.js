@@ -22,14 +22,6 @@ const userSchema = new mongoose.Schema(
             type: String,
             required: true
         },
-        passwordResetToken: {
-            type: String,
-            select: false
-        },
-        passwordResetExpires: {
-            type: Date,
-            select: false
-        },
         onboardingCompleted: {
             type: Boolean,
             default: false

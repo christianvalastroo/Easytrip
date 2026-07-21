@@ -17,8 +17,6 @@ Il progetto è stato sviluppato come Capstone Project e comprende un'interfaccia
 ## ✨ Funzionalità
 
 - Registrazione, login e logout
-- Recupero e reimpostazione della password tramite email
-- Email di benvenuto localizzata
 - Dashboard personale con riepilogo dei viaggi
 - Creazione, modifica ed eliminazione dei viaggi
 - Copertina personalizzata per ogni viaggio
@@ -47,7 +45,6 @@ Il progetto è stato sviluppato come Capstone Project e comprende un'interfaccia
 - MongoDB e Mongoose
 - JSON Web Token
 - bcrypt
-- Nodemailer
 - Cloudinary
 - Multer
 
@@ -66,7 +63,6 @@ Easytrip/
 - npm
 - Database MongoDB
 - Account Cloudinary per il caricamento delle immagini
-- Account email SMTP per le email automatiche
 
 ## 🚀 Installazione
 
@@ -106,8 +102,6 @@ Completa i valori nei due file `.env`. Le credenziali reali non devono mai esser
 | `CLIENT_URL` | Indirizzo del frontend autorizzato da CORS |
 | `MONGO_URL` | Stringa di connessione MongoDB |
 | `JWT_SECRET` | Chiave privata per firmare i token |
-| `EMAIL_USER` | Indirizzo usato per inviare le email |
-| `EMAIL_PASSWORD` | Password SMTP o password per applicazioni |
 | `CLOUDINARY_CLOUD_NAME` | Nome cloud Cloudinary |
 | `CLOUDINARY_API_KEY` | API key Cloudinary |
 | `CLOUDINARY_API_SECRET` | API secret Cloudinary |
@@ -153,7 +147,7 @@ GET /api/health
 
 ## 🔗 API principali
 
-- `/api/auth` - registrazione, login e recupero password
+- `/api/auth` - registrazione e login
 - `/api/users` - profilo, password, onboarding e account
 - `/api/trips` - gestione dei viaggi e delle copertine
 - `/api/activities` - gestione delle attività dei viaggi

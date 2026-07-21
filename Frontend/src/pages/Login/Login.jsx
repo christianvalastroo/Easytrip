@@ -120,20 +120,12 @@ const Login = () => {
               </div>
 
               <div>
-                <div className='flex items-center justify-between gap-4'>
-                  <label
-                    htmlFor='password'
-                    className='text-sm font-bold text-slate-200'
-                  >
-                    {t('auth.password')}
-                  </label>
-                  <Link
-                    to='/forgot-password'
-                    className='text-xs font-bold text-cyan-200 transition hover:text-white'
-                  >
-                    {t('auth.login.forgot')}
-                  </Link>
-                </div>
+                <label
+                  htmlFor='password'
+                  className='text-sm font-bold text-slate-200'
+                >
+                  {t('auth.password')}
+                </label>
                 <input
                   id='password'
                   name='password'
