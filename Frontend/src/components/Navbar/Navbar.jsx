@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { API_URL } from '../../config/api'
+import { useLanguage } from '../../i18n/language-context'
 import {
     clearSession,
     isAuthError,
@@ -23,6 +24,7 @@ const Navbar = () => {
     const [user, setUser] = useState(null)
     const [authRefreshKey, setAuthRefreshKey] = useState(0)
     const navigate = useNavigate()
+    const { t } = useLanguage()
 
     useEffect(() => {
         const updateToken = () => {
@@ -82,9 +84,9 @@ const Navbar = () => {
     const navLinks = []
 
     const mobilePrivateLinks = [
-        { path: '/dashboard', label: 'My trips', icon: Map },
-        { path: '/profile', label: 'Profile', icon: UserRound },
-        { path: '/settings', label: 'Settings', icon: Settings },
+        { path: '/dashboard', label: t('navigation.myTrips'), icon: Map },
+        { path: '/profile', label: t('common.profile'), icon: UserRound },
+        { path: '/settings', label: t('common.settings'), icon: Settings },
     ]
 
     const handleLogout = () => {
@@ -142,7 +144,7 @@ const Navbar = () => {
                             translate='no'
                             onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                             className='notranslate flex h-11 w-11 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 text-sm font-black text-slate-950 shadow-lg shadow-cyan-500/25 transition hover:-translate-y-0.5'
-                            aria-label='Open user menu'
+                            aria-label={t('navigation.openUserMenu')}
                             aria-expanded={isProfileMenuOpen}
                         >
                             {user?.avatar?.url ? (
@@ -160,10 +162,10 @@ const Navbar = () => {
                             <div className='absolute right-0 top-14 w-64 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/95 p-2 shadow-2xl shadow-slate-950/40 backdrop-blur-xl'>
                                 <div className='border-b border-white/10 px-4 py-3'>
                                     <p className='text-sm font-black text-white'>
-                                        {user?.firstName || 'EasyTrip user'}
+                                        {user?.firstName || t('common.user')}
                                     </p>
                                     <p className='mt-1 truncate text-xs font-medium text-slate-400'>
-                                        {user?.email || 'Account'}
+                                        {user?.email || t('common.account')}
                                     </p>
                                 </div>
 
@@ -173,7 +175,7 @@ const Navbar = () => {
                                     className='mt-2 flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
                                 >
                                     <UserRound size={16} />
-                                    Profile
+                                    {t('common.profile')}
                                 </NavLink>
 
                                 <NavLink
@@ -182,7 +184,7 @@ const Navbar = () => {
                                     className='flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-cyan-50/85 transition hover:bg-white/10 hover:text-white'
                                 >
                                     <Settings size={16} />
-                                    Settings
+                                    {t('common.settings')}
                                 </NavLink>
 
                                 <button
@@ -191,7 +193,7 @@ const Navbar = () => {
                                     className='mt-2 flex w-full cursor-pointer items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-left text-sm font-bold text-white transition hover:bg-white/15'
                                 >
                                     <LogOut size={16} />
-                                    Logout
+                                    {t('common.logout')}
                                 </button>
                             </div>
                         )}
@@ -202,14 +204,14 @@ const Navbar = () => {
                             to='/login'
                             className='cursor-pointer text-sm font-bold text-cyan-50/85 transition hover:text-white'
                         >
-                            Login
+                            {t('common.login')}
                         </Link>
 
                         <Link
                             to='/register'
                             className='cursor-pointer rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-cyan-500/25'
                         >
-                            Sign up
+                            {t('common.signUp')}
                         </Link>
                     </div>
                 )}
@@ -218,7 +220,7 @@ const Navbar = () => {
                     type='button'
                     className='flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-white md:hidden'
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    aria-label='Toggle navigation menu'
+                    aria-label={t('navigation.toggleMenu')}
                     aria-expanded={isMenuOpen}
                 >
                     {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
@@ -255,10 +257,10 @@ const Navbar = () => {
                                     </div>
                                     <div className='min-w-0'>
                                         <p className='truncate text-sm font-black text-white'>
-                                            {user?.firstName || 'EasyTrip user'}
+                                            {user?.firstName || t('common.user')}
                                         </p>
                                         <p className='truncate text-xs font-medium text-slate-400'>
-                                            {user?.email || 'Account'}
+                                            {user?.email || t('common.account')}
                                         </p>
                                     </div>
                                 </div>
@@ -269,7 +271,7 @@ const Navbar = () => {
                                     className='flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-center text-sm font-bold text-white'
                                 >
                                     <LogOut size={16} />
-                                    Logout
+                                    {t('common.logout')}
                                 </button>
                             </>
                         ) : (
@@ -279,7 +281,7 @@ const Navbar = () => {
                                     onClick={() => setIsMenuOpen(false)}
                                     className='cursor-pointer rounded-xl px-3 py-2 text-sm font-semibold text-cyan-50/85'
                                 >
-                                    Login
+                                    {t('common.login')}
                                 </Link>
 
                                 <Link
@@ -287,7 +289,7 @@ const Navbar = () => {
                                     onClick={() => setIsMenuOpen(false)}
                                     className='cursor-pointer rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-4 py-2.5 text-center text-sm font-bold text-slate-950'
                                 >
-                                    Sign up
+                                    {t('common.signUp')}
                                 </Link>
                             </>
                         )}

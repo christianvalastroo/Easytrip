@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../../i18n/language-context'
 
 const Footer = () => {
     const currentYear = new Date().getFullYear()
+    const { t } = useLanguage()
 
     return (
         <footer className='border-t border-white/10 bg-slate-950 text-white'>
@@ -17,26 +19,24 @@ const Footer = () => {
                     </Link>
 
                     <p className='mt-4 max-w-sm text-sm leading-6 text-slate-300'>
-                        Organize trips, activities and budgets in one place,
-                        with a simple and clear structure.
+                        {t('footer.description')}
                     </p>
                 </div>
 
                 <div className='hidden md:block'>
                     <h2 className='text-sm font-black uppercase tracking-wide text-cyan-200'>
-                        Project
+                        {t('footer.project')}
                     </h2>
 
                     <p className='mt-4 text-sm leading-6 text-slate-300'>
-                        A private full-stack travel planner designed to keep
-                        every itinerary clear and organized.
+                        {t('footer.projectDescription')}
                     </p>
                 </div>
             </div>
 
             <div className='border-t border-white/10 px-4 py-4 md:py-5'>
                 <p className='mx-auto max-w-7xl text-sm text-slate-400 sm:px-6 lg:px-8'>
-                    © {currentYear} EasyTrip. All rights reserved.
+                    © {currentYear} EasyTrip. {t('footer.rights')}
                 </p>
             </div>
         </footer>

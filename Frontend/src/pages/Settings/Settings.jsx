@@ -5,6 +5,7 @@ import {
     CheckCircle2,
     Info,
     KeyRound,
+    Languages,
     LogOut,
     ShieldCheck,
     Trash2,
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
+import LanguageSwitcher from '../../components/LanguageSwitcher/LanguageSwitcher'
 import { API_URL } from '../../config/api'
 import {
     clearSession,
@@ -220,6 +222,22 @@ const Settings = () => {
                 </header>
 
                 <div className='space-y-6'>
+                    <SettingsSection
+                        icon={Languages}
+                        title='Language'
+                        description='Choose the language used by the EasyTrip interface.'
+                    >
+                        <div className='flex flex-col gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between'>
+                            <div>
+                                <p className='font-bold text-white'>Interface language</p>
+                                <p className='mt-1 text-sm text-slate-400'>
+                                    English is the original language. Your choice is saved on this browser.
+                                </p>
+                            </div>
+                            <LanguageSwitcher />
+                        </div>
+                    </SettingsSection>
+
                     <SettingsSection
                         icon={UserCog}
                         title='Account'
