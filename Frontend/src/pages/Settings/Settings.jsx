@@ -23,9 +23,11 @@ import {
     SESSION_EXPIRED_MESSAGE,
 } from '../../utils/auth'
 import packageJson from '../../../package.json'
+import { useLanguage } from '../../i18n/language-context'
 
 const Settings = () => {
     const navigate = useNavigate()
+    const { t } = useLanguage()
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [passwords, setPasswords] = useState({
         currentPassword: '',
@@ -73,7 +75,7 @@ const Settings = () => {
             const data = responseText ? JSON.parse(responseText) : {}
 
             if (!response.ok) {
-                throw new Error(data.message || 'Unable to restart the guide')
+                throw new Error(data.message || t('settingsErrors.guide'))
             }
 
             navigate('/dashboard')
@@ -99,12 +101,12 @@ const Settings = () => {
         setPasswordSuccess('')
 
         if (passwords.newPassword.length < 8) {
-            setPasswordError('New password must be at least 8 characters long')
+            setPasswordError(t('settingsErrors.shortPassword'))
             return
         }
 
         if (passwords.newPassword !== passwords.confirmPassword) {
-            setPasswordError('New passwords do not match')
+            setPasswordError(t('settingsErrors.mismatch'))
             return
         }
 
@@ -136,7 +138,7 @@ const Settings = () => {
             const data = responseText ? JSON.parse(responseText) : null
 
             if (!response.ok) {
-                throw new Error(data?.message || 'Unable to update password')
+                throw new Error(data?.message || t('settingsErrors.passwordUpdate'))
             }
 
             setPasswords({
@@ -144,7 +146,7 @@ const Settings = () => {
                 newPassword: '',
                 confirmPassword: '',
             })
-            setPasswordSuccess(data.message || 'Password updated successfully')
+            setPasswordSuccess(data.message || t('settingsErrors.passwordUpdated'))
         } catch (changeError) {
             setPasswordError(changeError.message)
         } finally {
@@ -185,7 +187,7 @@ const Settings = () => {
             const data = responseText ? JSON.parse(responseText) : null
 
             if (!response.ok) {
-                throw new Error(data?.message || 'Unable to delete account')
+                throw new Error(data?.message || t('settingsErrors.delete'))
             }
 
             clearSession()
@@ -206,32 +208,32 @@ const Settings = () => {
                     className='mb-6 flex cursor-pointer items-center gap-2 text-sm font-bold text-slate-400 transition hover:text-cyan-200'
                 >
                     <ArrowLeft size={17} />
-                    Back to dashboard
+                    {t('settings.back')}
                 </button>
 
                 <header className='mb-8'>
                     <p className='text-sm font-bold uppercase tracking-[0.2em] text-cyan-300'>
-                        Your account
+                        {t('settings.eyebrow')}
                     </p>
                     <h1 className='mt-2 text-4xl font-black tracking-tight sm:text-5xl'>
-                        Settings
+                        {t('settings.title')}
                     </h1>
                     <p className='mt-3 max-w-2xl text-slate-400'>
-                        Manage your preferences, session and EasyTrip account.
+                        {t('settings.description')}
                     </p>
                 </header>
 
                 <div className='space-y-6'>
                     <SettingsSection
                         icon={Languages}
-                        title='Language'
-                        description='Choose the language used by the EasyTrip interface.'
+                        title={t('settings.language')}
+                        description={t('settings.languageText')}
                     >
                         <div className='flex flex-col gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between'>
                             <div>
-                                <p className='font-bold text-white'>Interface language</p>
+                                <p className='font-bold text-white'>{t('settings.interfaceLanguage')}</p>
                                 <p className='mt-1 text-sm text-slate-400'>
-                                    English is the original language. Your choice is saved on this browser.
+                                    {t('settings.languageHint')}
                                 </p>
                             </div>
                             <LanguageSwitcher />
@@ -240,14 +242,14 @@ const Settings = () => {
 
                     <SettingsSection
                         icon={UserCog}
-                        title='Account'
-                        description='Update your personal details and password.'
+                        title={t('settings.account')}
+                        description={t('settings.accountText')}
                     >
                         <div className='flex flex-col gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between'>
                             <div>
-                                <p className='font-bold text-white'>Personal information</p>
+                                <p className='font-bold text-white'>{t('settings.personal')}</p>
                                 <p className='mt-1 text-sm text-slate-400'>
-                                    Change your name and view your email address.
+                                    {t('settings.personalText')}
                                 </p>
                             </div>
                             <button
@@ -255,7 +257,7 @@ const Settings = () => {
                                 onClick={() => navigate('/profile')}
                                 className='flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/15'
                             >
-                                <UserCog size={17} /> Edit profile
+                                <UserCog size={17} /> {t('settings.editProfile')}
                             </button>
                         </div>
 
@@ -268,28 +270,28 @@ const Settings = () => {
                                     <KeyRound size={17} />
                                 </span>
                                 <div>
-                                    <h3 className='font-bold text-white'>Change password</h3>
+                                    <h3 className='font-bold text-white'>{t('settings.changePassword')}</h3>
                                     <p className='mt-1 text-sm text-slate-400'>
-                                        Use at least 8 characters for your new password.
+                                        {t('settings.passwordHint')}
                                     </p>
                                 </div>
                             </div>
 
                             <div className='grid gap-4 md:grid-cols-3'>
                                 <PasswordField
-                                    label='Current password'
+                                    label={t('settings.currentPassword')}
                                     name='currentPassword'
                                     onChange={handlePasswordChange}
                                     value={passwords.currentPassword}
                                 />
                                 <PasswordField
-                                    label='New password'
+                                    label={t('settings.newPassword')}
                                     name='newPassword'
                                     onChange={handlePasswordChange}
                                     value={passwords.newPassword}
                                 />
                                 <PasswordField
-                                    label='Confirm password'
+                                    label={t('settings.confirmPassword')}
                                     name='confirmPassword'
                                     onChange={handlePasswordChange}
                                     value={passwords.confirmPassword}
@@ -315,10 +317,10 @@ const Settings = () => {
                                     className='flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-4 py-2.5 text-sm font-black text-slate-950 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60'
                                 >
                                     {isChangingPassword ? (
-                                        <LoadingSpinner label='Updating...' size={17} />
+                                        <LoadingSpinner label={t('settings.updating')} size={17} />
                                     ) : (
                                         <>
-                                            <KeyRound size={17} /> Change password
+                                            <KeyRound size={17} /> {t('settings.changePassword')}
                                         </>
                                     )}
                                 </button>
@@ -328,14 +330,14 @@ const Settings = () => {
 
                     <SettingsSection
                         icon={BookOpen}
-                        title='Quick guide'
-                        description='Review how to create and organize your trips.'
+                        title={t('settings.guide')}
+                        description={t('settings.guideText')}
                     >
                         <div className='flex flex-col gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between'>
                             <div>
-                                <p className='font-bold text-white'>EasyTrip introduction</p>
+                                <p className='font-bold text-white'>{t('settings.introduction')}</p>
                                 <p className='mt-1 text-sm text-slate-400'>
-                                    Replay the four-step introduction shown after your first login.
+                                    {t('settings.replay')}
                                 </p>
                             </div>
                             <button
@@ -345,10 +347,10 @@ const Settings = () => {
                                 className='flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-2.5 text-sm font-black text-cyan-100 transition hover:bg-cyan-400/15 disabled:cursor-not-allowed disabled:opacity-60'
                             >
                                 {isRestartingGuide ? (
-                                    <LoadingSpinner label='Opening...' size={17} />
+                                    <LoadingSpinner label={t('settings.opening')} size={17} />
                                 ) : (
                                     <>
-                                        <BookOpen size={17} /> Review guide
+                                        <BookOpen size={17} /> {t('settings.review')}
                                     </>
                                 )}
                             </button>
@@ -363,19 +365,19 @@ const Settings = () => {
 
                     <SettingsSection
                         icon={ShieldCheck}
-                        title='Session'
-                        description='Manage the session active on this browser.'
+                        title={t('settings.session')}
+                        description={t('settings.sessionText')}
                     >
                         <div className='flex flex-col gap-4 rounded-2xl border border-white/10 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between'>
                             <div>
                                 <div className='flex items-center gap-2'>
-                                    <p className='font-bold text-white'>Current session</p>
+                                    <p className='font-bold text-white'>{t('settings.currentSession')}</p>
                                     <span className='rounded-full bg-emerald-400/10 px-2.5 py-1 text-xs font-black text-emerald-300'>
-                                        Active
+                                        {t('settings.active')}
                                     </span>
                                 </div>
                                 <p className='mt-1 text-sm text-slate-400'>
-                                    Your session lasts up to one hour. Log out when using a shared device.
+                                    {t('settings.sessionHint')}
                                 </p>
                             </div>
                             <button
@@ -383,7 +385,7 @@ const Settings = () => {
                                 onClick={handleLogout}
                                 className='flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-black text-white transition hover:bg-white/15'
                             >
-                                <LogOut size={17} /> Log out
+                                <LogOut size={17} /> {t('common.logout')}
                             </button>
                         </div>
                     </SettingsSection>
@@ -394,18 +396,18 @@ const Settings = () => {
                                 <TriangleAlert size={21} />
                             </span>
                             <div>
-                                <h2 className='text-xl font-black text-rose-200'>Danger zone</h2>
+                                <h2 className='text-xl font-black text-rose-200'>{t('settings.danger')}</h2>
                                 <p className='mt-1 text-sm text-slate-400'>
-                                    Actions in this section cannot be undone.
+                                    {t('settings.dangerText')}
                                 </p>
                             </div>
                         </div>
 
                         <div className='mt-6 flex flex-col gap-4 rounded-2xl border border-rose-400/20 bg-slate-950/50 p-4 sm:flex-row sm:items-center sm:justify-between'>
                             <div>
-                                <p className='font-bold text-white'>Delete account</p>
+                                <p className='font-bold text-white'>{t('settings.deleteAccount')}</p>
                                 <p className='mt-1 text-sm text-slate-400'>
-                                    Permanently delete your account, trips and activities.
+                                    {t('settings.deleteText')}
                                 </p>
                             </div>
                             <button
@@ -413,23 +415,23 @@ const Settings = () => {
                                 onClick={() => setIsDeleteDialogOpen(true)}
                                 className='flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-rose-400/30 bg-rose-400/10 px-4 py-2.5 text-sm font-black text-rose-200 transition hover:bg-rose-400/20'
                             >
-                                <Trash2 size={17} /> Delete account
+                                <Trash2 size={17} /> {t('settings.deleteAccount')}
                             </button>
                         </div>
                     </section>
 
                     <SettingsSection
                         icon={Info}
-                        title='About'
-                        description='Information about this EasyTrip installation.'
+                        title={t('settings.about')}
+                        description={t('settings.aboutText')}
                     >
                         <div className='flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/50 p-4'>
                             <div>
                                 <p className='font-black text-white'>EasyTrip</p>
-                                <p className='mt-1 text-sm text-slate-400'>Travel planning made simple.</p>
+                                <p className='mt-1 text-sm text-slate-400'>{t('settings.tagline')}</p>
                             </div>
                             <span className='inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1.5 text-center text-xs font-black leading-none text-cyan-200'>
-                                Version {packageJson.version}
+                                {t('settings.version')} {packageJson.version}
                             </span>
                         </div>
                     </SettingsSection>
@@ -490,7 +492,10 @@ const DeleteAccountDialog = ({
     onChange,
     onClose,
     onConfirm,
-}) => (
+}) => {
+    const { t } = useLanguage()
+
+    return (
     <div
         className='fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 px-4 backdrop-blur-sm'
         role='dialog'
@@ -501,12 +506,12 @@ const DeleteAccountDialog = ({
             <div className='flex items-start justify-between gap-4'>
                 <div>
                     <h2 id='delete-account-title' className='text-2xl font-black text-white'>
-                        Delete your account?
+                        {t('settingsErrors.deleteTitle')}
                     </h2>
                     <p className='mt-2 text-sm leading-6 text-slate-400'>
-                        This permanently removes your account, trips and activities. Type
+                        {t('settingsErrors.deleteDescription')}
                         <strong className='mx-1 text-rose-200'>DELETE</strong>
-                        to confirm.
+                        {t('settingsErrors.deleteConfirm')}
                     </p>
                 </div>
                 <button
@@ -514,7 +519,7 @@ const DeleteAccountDialog = ({
                     onClick={onClose}
                     disabled={isDeleting}
                     className='flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl text-slate-400 transition hover:bg-white/10 hover:text-white disabled:cursor-not-allowed'
-                    aria-label='Close dialog'
+                    aria-label={t('settingsErrors.close')}
                 >
                     <X size={19} />
                 </button>
@@ -524,7 +529,7 @@ const DeleteAccountDialog = ({
                 value={confirmation}
                 onChange={(event) => onChange(event.target.value)}
                 disabled={isDeleting}
-                placeholder='Type DELETE'
+                placeholder={t('settingsErrors.typeDelete')}
                 autoComplete='off'
                 className='mt-5 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-bold text-white outline-none transition focus:border-rose-400/60 focus:ring-4 focus:ring-rose-400/10'
             />
@@ -542,7 +547,7 @@ const DeleteAccountDialog = ({
                     disabled={isDeleting}
                     className='cursor-pointer rounded-xl border border-white/15 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed'
                 >
-                    Cancel
+                    {t('settingsErrors.cancel')}
                 </button>
                 <button
                     type='button'
@@ -551,16 +556,17 @@ const DeleteAccountDialog = ({
                     className='flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-rose-500 px-4 py-2.5 text-sm font-black text-white transition hover:bg-rose-400 disabled:cursor-not-allowed disabled:opacity-40'
                 >
                     {isDeleting ? (
-                        <LoadingSpinner label='Deleting...' size={17} />
+                        <LoadingSpinner label={t('settingsErrors.deleting')} size={17} />
                     ) : (
                         <>
-                            <Trash2 size={17} /> Delete permanently
+                            <Trash2 size={17} /> {t('settingsErrors.deleteAction')}
                         </>
                     )}
                 </button>
             </div>
         </div>
     </div>
-)
+    )
+}
 
 export default Settings

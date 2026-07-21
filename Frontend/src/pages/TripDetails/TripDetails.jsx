@@ -18,20 +18,12 @@ import {
 import { useNavigate, useParams } from 'react-router-dom'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
+import { useLanguage } from '../../i18n/language-context'
 import {
     clearSession,
     isAuthError,
     SESSION_EXPIRED_MESSAGE,
 } from '../../utils/auth'
-
-const defaultChecklist = [
-    { text: 'Identity card / Passport', isCompleted: true },
-    { text: 'Flight or train tickets', isCompleted: true },
-    { text: 'Hotel reservation', isCompleted: true },
-    { text: 'Travel insurance', isCompleted: false },
-    { text: 'Luggage', isCompleted: false },
-    { text: 'Chargers', isCompleted: false },
-]
 
 const initialActivityFormData = {
     title: '',
@@ -46,6 +38,7 @@ const initialActivityFormData = {
 const TripDetails = () => {
     const { id } = useParams()
     const navigate = useNavigate()
+    const { language, t } = useLanguage()
 
     const [trip, setTrip] = useState(null)
     const [activities, setActivities] = useState([])
@@ -58,7 +51,7 @@ const TripDetails = () => {
     const [isSavingChecklist, setIsSavingChecklist] = useState(false)
     const [checklistError, setChecklistError] = useState('')
     const [showActivityForm, setShowActivityForm] = useState(false)
-    const [checklistItems, setChecklistItems] = useState(defaultChecklist)
+    const [checklistItems, setChecklistItems] = useState([])
     const [newChecklistItem, setNewChecklistItem] = useState('')
     const [editingChecklistItem, setEditingChecklistItem] = useState('')
     const [editingChecklistValue, setEditingChecklistValue] = useState('')
@@ -96,12 +89,12 @@ const TripDetails = () => {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
 
         if (!allowedTypes.includes(file.type)) {
-            setCoverError('Choose a JPEG, PNG or WebP image')
+            setCoverError(t('tripDetails.imageType'))
             return
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            setCoverError('Image size cannot exceed 5 MB')
+            setCoverError(t('tripDetails.imageSize'))
             return
         }
 
@@ -132,11 +125,11 @@ const TripDetails = () => {
             const data = responseText ? JSON.parse(responseText) : null
 
             if (!response.ok) {
-                throw new Error(data?.message || 'Unable to upload trip cover')
+                throw new Error(data?.message || t('tripDetails.coverUpload'))
             }
 
             setTrip(data.trip)
-            setCoverSuccess(data.message || 'Trip cover updated successfully')
+            setCoverSuccess(data.message || t('tripDetails.coverUpdated'))
         } catch (uploadError) {
             setCoverError(uploadError.message)
         } finally {
@@ -177,18 +170,23 @@ const TripDetails = () => {
                 const activitiesData = activitiesText ? JSON.parse(activitiesText) : []
 
                 if (!tripResponse.ok) {
-                    throw new Error(tripData.message || 'Trip unavailable')
+                    throw new Error(tripData.message || t('tripDetails.unavailable'))
                 }
 
                 if (!activitiesResponse.ok) {
-                    throw new Error(activitiesData.message || 'Activities unavailable')
+                    throw new Error(activitiesData.message || t('tripDetails.activitiesUnavailable'))
                 }
 
                 setTrip(tripData)
                 setNotesValue(tripData.notes || '')
                 setActivities(Array.isArray(activitiesData) ? activitiesData : [])
                 setChecklistItems(
-                    tripData.checklist?.length > 0 ? tripData.checklist : defaultChecklist,
+                    tripData.checklist?.length > 0
+                        ? tripData.checklist
+                        : t('tripDetails.defaultChecklist').map((text, index) => ({
+                            text,
+                            isCompleted: index < 3,
+                        })),
                 )
             } catch (error) {
                 setError(error.message)
@@ -198,7 +196,7 @@ const TripDetails = () => {
         }
 
         fetchTrip()
-    }, [id, navigate])
+    }, [id, navigate, t])
 
     const totalActivitiesCost = useMemo(() => {
         return activities.reduce((total, activity) => total + (activity.cost || 0), 0)
@@ -206,7 +204,7 @@ const TripDetails = () => {
 
     const activitiesByDate = useMemo(() => {
         return activities.reduce((groups, activity) => {
-            const dateKey = activity.date ? formatDate(activity.date) : 'Date not set'
+            const dateKey = activity.date ? formatDate(activity.date, language) : t('tripDetails.dateMissing')
             const nextGroup = groups[dateKey] || []
 
             return {
@@ -214,7 +212,7 @@ const TripDetails = () => {
                 [dateKey]: [...nextGroup, activity],
             }
         }, {})
-    }, [activities])
+    }, [activities, language, t])
 
     const handleActivityChange = (event) => {
         const { name, value } = event.target
@@ -306,7 +304,7 @@ const TripDetails = () => {
             const data = responseText ? JSON.parse(responseText) : {}
 
             if (!response.ok) {
-                throw new Error(data.message || 'Activity update failed')
+                throw new Error(data.message || t('tripErrors.activityUpdate'))
             }
 
             setActivities((prevActivities) =>
@@ -444,7 +442,7 @@ const TripDetails = () => {
             const data = responseText ? JSON.parse(responseText) : {}
 
             if (!response.ok) {
-                throw new Error(data.message || 'Checklist update failed')
+                throw new Error(data.message || t('tripErrors.checklistUpdate'))
             }
 
             setTrip(data.trip)
@@ -502,7 +500,7 @@ const TripDetails = () => {
             const data = responseText ? JSON.parse(responseText) : {}
 
             if (!response.ok) {
-                throw new Error(data.message || 'Activity creation failed')
+                throw new Error(data.message || t('tripErrors.activityCreate'))
             }
 
             setActivities((prevActivities) => {
@@ -572,7 +570,7 @@ const TripDetails = () => {
             const data = responseText ? JSON.parse(responseText) : {}
 
             if (!response.ok) {
-                throw new Error(data.message || 'Notes update failed')
+                throw new Error(data.message || t('tripErrors.notesUpdate'))
             }
 
             setTrip(data.trip)
@@ -616,7 +614,7 @@ const TripDetails = () => {
             const data = responseText ? JSON.parse(responseText) : {}
 
             if (!response.ok) {
-                throw new Error(data.message || 'Activity deletion failed')
+                throw new Error(data.message || t('tripErrors.activityDelete'))
             }
 
             setActivities((prevActivities) =>
@@ -661,7 +659,7 @@ const TripDetails = () => {
             const data = responseText ? JSON.parse(responseText) : {}
 
             if (!response.ok) {
-                throw new Error(data.message || 'Trip deletion failed')
+                throw new Error(data.message || t('tripErrors.tripDelete'))
             }
 
             window.location.replace('/trips')
@@ -714,12 +712,12 @@ const TripDetails = () => {
             <section className='mx-auto max-w-7xl space-y-6'>
                 {isLoading ? (
                     <TripDetailsMessage
-                        message={<LoadingSpinner label='Loading trip...' />}
+                        message={<LoadingSpinner label={t('tripDetails.loading')} />}
                     />
                 ) : error ? (
                     <TripDetailsMessage isError message={error} />
                 ) : !trip ? (
-                    <TripDetailsMessage message='Trip not found.' />
+                    <TripDetailsMessage message={t('tripDetails.notFound')} />
                 ) : (
                     <div className='space-y-6'>
                         <button
@@ -759,12 +757,12 @@ const TripDetails = () => {
                                         ? 'cursor-not-allowed opacity-60'
                                         : 'cursor-pointer'
                                         }`}
-                                    aria-label='Change trip cover'
-                                    title='Change trip cover'
+                                    aria-label={t('tripDetails.changeCover')}
+                                    title={t('tripDetails.changeCover')}
                                 >
                                     {isUploadingCover ? (
                                         <LoadingSpinner
-                                            label='Uploading trip cover'
+                                            label={t('tripDetails.uploadingCover')}
                                             showLabel={false}
                                             size={17}
                                         />
@@ -785,7 +783,7 @@ const TripDetails = () => {
                             <div className='relative z-10 flex min-h-[18rem] flex-col justify-end p-5 sm:min-h-[22rem] sm:p-8'>
                                 <div className='max-w-4xl'>
                                     <p className='w-fit rounded-full border border-emerald-300/30 bg-emerald-400/10 px-3 py-1 text-xs font-black text-emerald-200'>
-                                        Confirmed
+                                        {t('tripDetails.confirmed')}
                                     </p>
 
                                     <p className='mt-6 text-sm font-bold uppercase tracking-wide text-cyan-200'>
@@ -799,8 +797,8 @@ const TripDetails = () => {
                                     <div className='mt-4 flex items-start gap-2 text-sm font-semibold text-slate-200 sm:items-center sm:text-base'>
                                         <CalendarDays size={18} className='mt-0.5 shrink-0 sm:mt-0' />
                                         <p>
-                                            <span>{formatDate(trip.startDate)}</span>
-                                            <span className='block sm:inline'> - {formatDate(trip.endDate)}</span>
+                                            <span>{formatDate(trip.startDate, language)}</span>
+                                            <span className='block sm:inline'> - {formatDate(trip.endDate, language)}</span>
                                         </p>
                                     </div>
                                 </div>
@@ -823,23 +821,23 @@ const TripDetails = () => {
                         <section className='grid gap-4 sm:grid-cols-2 xl:grid-cols-4'>
                             <DetailBox
                                 icon={MapPin}
-                                label='Destination'
+                                label={t('tripDetails.destination')}
                                 value={trip.destination}
                             />
                             <DetailBox
                                 icon={Wallet}
-                                label='Budget'
-                                value={formatCurrency(trip.budget)}
+                                label={t('tripDetails.budget')}
+                                value={formatCurrency(trip.budget, language)}
                             />
                             <DetailBox
                                 icon={ListChecks}
-                                label='Activities'
+                                label={t('tripDetails.activities')}
                                 value={activities.length}
                             />
                             <DetailBox
                                 icon={Wallet}
-                                label='Activity costs'
-                                value={formatCurrency(totalActivitiesCost)}
+                                label={t('tripDetails.activityCosts')}
+                                value={formatCurrency(totalActivitiesCost, language)}
                             />
                         </section>
 
@@ -853,9 +851,9 @@ const TripDetails = () => {
                                             </span>
                                             <div>
                                                 <p className='text-xs font-bold uppercase tracking-wide text-slate-400'>
-                                                    Trip notes
+                                                    {t('tripDetails.notes')}
                                                 </p>
-                                                <h2 className='text-2xl font-black'>Overview</h2>
+                                                <h2 className='text-2xl font-black'>{t('tripDetails.overview')}</h2>
                                             </div>
                                         </div>
 
@@ -864,7 +862,7 @@ const TripDetails = () => {
                                                 type='button'
                                                 onClick={handleStartEditNotes}
                                                 className='flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/10 text-cyan-100 transition hover:border-cyan-400/30 hover:bg-white/15'
-                                                aria-label='Edit notes'
+                                                aria-label={t('tripDetails.editNotes')}
                                             >
                                                 <Pencil size={16} />
                                             </button>
@@ -877,7 +875,7 @@ const TripDetails = () => {
                                                 value={notesValue}
                                                 onChange={(event) => setNotesValue(event.target.value)}
                                                 rows='4'
-                                                placeholder='Hotel ideas, transport details and useful reminders...'
+                                                placeholder={t('tripDetails.notesPlaceholder')}
                                                 className='w-full resize-none rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-white/15'
                                             />
 
@@ -894,10 +892,10 @@ const TripDetails = () => {
                                                     className='inline-flex cursor-pointer items-center gap-2 rounded-xl bg-cyan-300 px-4 py-2 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-not-allowed disabled:opacity-70'
                                                 >
                                                     {isSavingNotes ? (
-                                                        <LoadingSpinner label='Saving...' size={16} />
+                                                        <LoadingSpinner label={t('tripDetails.saving')} size={16} />
                                                     ) : (
                                                         <>
-                                                            <Check size={16} /> Save notes
+                                                            <Check size={16} /> {t('tripDetails.saveNotes')}
                                                         </>
                                                     )}
                                                 </button>
@@ -907,13 +905,13 @@ const TripDetails = () => {
                                                     disabled={isSavingNotes}
                                                     className='inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-slate-200 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-70'
                                                 >
-                                                    <X size={16} /> Cancel
+                                                    <X size={16} /> {t('tripDetails.cancel')}
                                                 </button>
                                             </div>
                                         </form>
                                     ) : (
                                         <p className='mt-5 whitespace-pre-wrap break-words text-sm leading-7 text-slate-300'>
-                                            {trip.notes || 'No notes yet. Add hotel ideas, transport details or useful reminders.'}
+                                            {trip.notes || t('tripDetails.noNotes')}
                                         </p>
                                     )}
                                 </article>
@@ -922,10 +920,10 @@ const TripDetails = () => {
                                     <div className='flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between'>
                                         <div>
                                             <p className='text-sm font-bold uppercase tracking-wide text-cyan-200'>
-                                                Itinerary
+                                                {t('tripDetails.itinerary')}
                                             </p>
                                             <h2 className='mt-2 text-2xl font-black'>
-                                                Day by day
+                                                {t('tripDetails.dayByDay')}
                                             </h2>
                                         </div>
 
@@ -935,7 +933,7 @@ const TripDetails = () => {
                                             className='inline-flex w-fit cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-cyan-100 transition-all duration-300 hover:border-cyan-400/30 hover:bg-white/15 hover:text-white'
                                         >
                                             <Plus size={16} />
-                                            {showActivityForm ? 'Close form' : 'Add activity'}
+                                            {showActivityForm ? t('tripDetails.closeForm') : t('tripDetails.addActivity')}
                                         </button>
                                     </div>
 
@@ -983,7 +981,7 @@ const TripDetails = () => {
                                                                         onCancel={handleCancelEditActivity}
                                                                         onChange={handleEditActivityChange}
                                                                         onSubmit={handleUpdateActivity}
-                                                                        submitLabel='Save changes'
+                                                                        submitLabel={t('activityForm.saveChanges')}
                                                                         trip={trip}
                                                                     />
                                                                 ) : (
@@ -1004,11 +1002,10 @@ const TripDetails = () => {
                                     ) : (
                                         <div className='mt-6 rounded-2xl border border-dashed border-white/15 bg-white/[0.05] p-6'>
                                             <p className='text-sm font-bold text-white'>
-                                                No activities yet
+                                                {t('tripDetails.noActivities')}
                                             </p>
                                             <p className='mt-2 text-sm leading-6 text-slate-400'>
-                                                Activities will appear here once you add them to this
-                                                trip.
+                                                {t('tripDetails.activitiesHint')}
                                             </p>
                                         </div>
                                     )}
@@ -1035,30 +1032,30 @@ const TripDetails = () => {
 
                                 <section className='rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-2xl shadow-slate-950/35 backdrop-blur-xl'>
                                     <p className='text-sm font-bold uppercase tracking-wide text-cyan-200'>
-                                        Spending
+                                        {t('tripDetails.spending')}
                                     </p>
                                     <h2 className='mt-2 text-2xl font-black'>
-                                        {formatCurrency(totalActivitiesCost)}
+                                        {formatCurrency(totalActivitiesCost, language)}
                                     </h2>
                                     <p className='mt-2 text-sm leading-6 text-slate-400'>
-                                        Total planned activity costs.
+                                        {t('tripDetails.spendingText')}
                                     </p>
 
                                     <div className='mt-5 space-y-3'>
                                         <SpendingRow
-                                            label='Trip budget'
-                                            value={formatCurrency(trip.budget)}
+                                            label={t('tripDetails.tripBudget')}
+                                            value={formatCurrency(trip.budget, language)}
                                         />
                                         <SpendingRow
-                                            label='Remaining'
-                                            value={formatCurrency((trip.budget || 0) - totalActivitiesCost)}
+                                            label={t('tripDetails.remaining')}
+                                            value={formatCurrency((trip.budget || 0) - totalActivitiesCost, language)}
                                         />
                                     </div>
                                 </section>
 
                                 <section className='rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-2xl shadow-slate-950/35 backdrop-blur-xl'>
                                     <p className='text-sm font-bold uppercase tracking-wide text-cyan-200'>
-                                        Actions
+                                        {t('tripDetails.actions')}
                                     </p>
 
                                     <div className='mt-4 space-y-3'>
@@ -1069,7 +1066,7 @@ const TripDetails = () => {
                                             className='flex w-full cursor-pointer items-center gap-3 rounded-2xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm font-bold text-red-200 transition-all duration-300 hover:bg-red-500/15 disabled:cursor-not-allowed disabled:opacity-70'
                                         >
                                             <Trash2 size={17} />
-                                            {isDeletingTrip ? 'Deleting...' : 'Delete trip'}
+                                            {isDeletingTrip ? t('tripDetails.deleting') : t('tripDetails.deleteTrip')}
                                         </button>
                                     </div>
                                 </section>
@@ -1085,7 +1082,7 @@ const TripDetails = () => {
                     isDeleting={isDeletingTrip}
                     onClose={handleCloseDeleteTripDialog}
                     onConfirm={handleDeleteTrip}
-                    title='Delete this trip?'
+                    title={t('tripDetails.deleteTripTitle')}
                 >
                     <span className='font-bold text-white'>{trip.title}</span> and all its activities
                     will be permanently deleted. This action cannot be undone.
@@ -1098,7 +1095,7 @@ const TripDetails = () => {
                     isDeleting={deletingActivityId === activityToDelete._id}
                     onClose={handleCloseDeleteActivityDialog}
                     onConfirm={() => handleDeleteActivity(activityToDelete)}
-                    title='Delete this activity?'
+                    title={t('tripDetails.deleteActivityTitle')}
                 >
                     <span className='font-bold text-white'>{activityToDelete.title}</span> will be
                     permanently removed from this itinerary.
@@ -1107,11 +1104,11 @@ const TripDetails = () => {
 
             {checklistItemToDelete && (
                 <DeleteConfirmationDialog
-                    confirmLabel='Delete item'
+                    confirmLabel={t('tripDetails.deleteItem')}
                     isDeleting={false}
                     onClose={() => setChecklistItemToDelete(null)}
                     onConfirm={handleConfirmDeleteChecklistItem}
-                    title='Delete this checklist item?'
+                    title={t('tripDetails.deleteItemTitle')}
                 >
                     <span className='font-bold text-white'>{checklistItemToDelete.text}</span> will be
                     removed from your trip checklist.
@@ -1123,13 +1120,16 @@ const TripDetails = () => {
 
 const DeleteConfirmationDialog = ({
     children,
-    confirmLabel = 'Delete permanently',
+    confirmLabel,
     error,
     isDeleting,
     onClose,
     onConfirm,
     title,
 }) => {
+    const { t } = useLanguage()
+    const resolvedConfirmLabel = confirmLabel || t('tripDetails.deletePermanent')
+
     return (
         <div className='fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/80 p-4 backdrop-blur-sm'>
             <section
@@ -1141,7 +1141,7 @@ const DeleteConfirmationDialog = ({
                 <div className='flex items-start justify-between gap-4'>
                     <div>
                         <p className='text-sm font-bold uppercase tracking-wide text-red-300'>
-                            Danger zone
+                            {t('tripDetails.danger')}
                         </p>
                         <h2 id='delete-confirmation-title' className='mt-2 text-2xl font-black text-white'>
                             {title}
@@ -1151,7 +1151,7 @@ const DeleteConfirmationDialog = ({
                         type='button'
                         onClick={onClose}
                         disabled={isDeleting}
-                        aria-label='Close delete confirmation dialog'
+                        aria-label={t('tripDetails.closeDialog')}
                         className='flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/10 text-slate-300 transition hover:bg-white/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
                     >
                         <X size={18} />
@@ -1175,7 +1175,7 @@ const DeleteConfirmationDialog = ({
                         disabled={isDeleting}
                         className='cursor-pointer rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60'
                     >
-                        Cancel
+                        {t('tripDetails.cancel')}
                     </button>
                     <button
                         type='button'
@@ -1184,10 +1184,10 @@ const DeleteConfirmationDialog = ({
                         className='inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-red-500 px-5 py-3 text-sm font-black text-white transition hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-70'
                     >
                         {isDeleting ? (
-                            <LoadingSpinner label='Deleting...' size={17} />
+                            <LoadingSpinner label={t('tripDetails.deleting')} size={17} />
                         ) : (
                             <>
-                                <Trash2 size={17} /> {confirmLabel}
+                                <Trash2 size={17} /> {resolvedConfirmLabel}
                             </>
                         )}
                     </button>
@@ -1198,6 +1198,7 @@ const DeleteConfirmationDialog = ({
 }
 
 const ActivityCard = ({ activity, isDeleting, onDelete, onEdit }) => {
+    const { language, t } = useLanguage()
     return (
         <article className='rounded-2xl border border-white/10 bg-white/[0.06] p-4'>
             <div className='flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between'>
@@ -1250,7 +1251,7 @@ const ActivityCard = ({ activity, isDeleting, onDelete, onEdit }) => {
             )}
 
             <p className='mt-3 text-sm font-bold text-slate-400'>
-                Cost: {formatCurrency(activity.cost)}
+                {t('activityForm.cost')}: {formatCurrency(activity.cost, language)}
             </p>
         </article>
     )
@@ -1265,9 +1266,12 @@ const ActivityForm = ({
     onCancel,
     onChange,
     onSubmit,
-    submitLabel = 'Save activity',
+    submitLabel,
     trip,
 }) => {
+    const { t } = useLanguage()
+    const resolvedSubmitLabel = submitLabel || t('activityForm.save')
+
     return (
         <form
             onSubmit={onSubmit}
@@ -1276,26 +1280,26 @@ const ActivityForm = ({
             <div className='grid gap-4 sm:grid-cols-2'>
                 <FormField
                     id={`${formIdPrefix}-title`}
-                    label='Title'
+                    label={t('activityForm.title')}
                     name='title'
                     onChange={onChange}
-                    placeholder='Visit the museum'
+                    placeholder={t('activityForm.titlePlaceholder')}
                     required
                     value={formData.title}
                 />
 
                 <FormField
                     id={`${formIdPrefix}-location`}
-                    label='Location'
+                    label={t('activityForm.location')}
                     name='location'
                     onChange={onChange}
-                    placeholder='City center'
+                    placeholder={t('activityForm.locationPlaceholder')}
                     value={formData.location}
                 />
 
                 <FormField
                     id={`${formIdPrefix}-date`}
-                    label='Date'
+                    label={t('activityForm.date')}
                     max={formatDateInput(trip.endDate)}
                     min={formatDateInput(trip.startDate)}
                     name='date'
@@ -1307,7 +1311,7 @@ const ActivityForm = ({
 
                 <FormField
                     id={`${formIdPrefix}-time`}
-                    label='Time'
+                    label={t('activityForm.time')}
                     name='time'
                     onChange={onChange}
                     type='time'
@@ -1316,7 +1320,7 @@ const ActivityForm = ({
 
                 <FormField
                     id={`${formIdPrefix}-cost`}
-                    label='Cost'
+                    label={t('activityForm.cost')}
                     min='0'
                     name='cost'
                     onChange={onChange}
@@ -1330,7 +1334,7 @@ const ActivityForm = ({
                         htmlFor={`${formIdPrefix}-type`}
                         className='text-sm font-bold text-slate-200'
                     >
-                        Type
+                        {t('activityForm.type')}
                     </label>
                     <select
                         id={`${formIdPrefix}-type`}
@@ -1339,11 +1343,11 @@ const ActivityForm = ({
                         onChange={onChange}
                         className='mt-2 w-full cursor-pointer rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm font-semibold text-white outline-none transition focus:border-cyan-300'
                     >
-                        <option value='transport'>Transport</option>
-                        <option value='hotel'>Hotel</option>
-                        <option value='food'>Food</option>
-                        <option value='visit'>Visit</option>
-                        <option value='other'>Other</option>
+                        <option value='transport'>{t('activityForm.transport')}</option>
+                        <option value='hotel'>{t('activityForm.hotel')}</option>
+                        <option value='food'>{t('activityForm.food')}</option>
+                        <option value='visit'>{t('activityForm.visit')}</option>
+                        <option value='other'>{t('activityForm.other')}</option>
                     </select>
                 </div>
             </div>
@@ -1353,7 +1357,7 @@ const ActivityForm = ({
                     htmlFor={`${formIdPrefix}-description`}
                     className='text-sm font-bold text-slate-200'
                 >
-                    Description
+                    {t('activityForm.description')}
                 </label>
                 <textarea
                     id={`${formIdPrefix}-description`}
@@ -1361,7 +1365,7 @@ const ActivityForm = ({
                     value={formData.description}
                     onChange={onChange}
                     rows='3'
-                    placeholder='Useful notes for this activity...'
+                    placeholder={t('activityForm.descriptionPlaceholder')}
                     className='mt-2 w-full resize-none rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-white/15'
                 />
             </div>
@@ -1379,11 +1383,11 @@ const ActivityForm = ({
                     className='inline-flex cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/20 transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
                 >
                     {isLoading ? (
-                        <LoadingSpinner label='Saving...' size={17} />
+                        <LoadingSpinner label={t('activityForm.saving')} size={17} />
                     ) : (
                         <>
                             {isEditing ? <Check size={17} /> : <Plus size={17} />}
-                            {submitLabel}
+                            {resolvedSubmitLabel}
                         </>
                     )}
                 </button>
@@ -1395,7 +1399,7 @@ const ActivityForm = ({
                         disabled={isLoading}
                         className='inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-slate-200 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-70'
                     >
-                        <X size={17} /> Cancel
+                        <X size={17} /> {t('activityForm.cancel')}
                     </button>
                 )}
             </div>
@@ -1419,6 +1423,8 @@ const ChecklistCard = ({
     onStartEdit,
     onToggle,
 }) => {
+    const { t } = useLanguage()
+
     return (
         <section className='rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-2xl shadow-slate-950/35 backdrop-blur-xl'>
             <div className='flex items-center gap-3'>
@@ -1427,13 +1433,13 @@ const ChecklistCard = ({
                 </span>
                 <div>
                     <p className='text-sm font-bold uppercase tracking-wide text-cyan-200'>
-                        Checklist
+                        {t('activityForm.checklist')}
                     </p>
                     <p className='text-xs font-semibold text-slate-400'>
                         {isSaving ? (
-                            <LoadingSpinner label='Saving checklist...' size={14} />
+                            <LoadingSpinner label={t('activityForm.savingChecklist')} size={14} />
                         ) : (
-                            'Saved with this trip'
+                            t('activityForm.checklistSaved')
                         )}
                     </p>
                 </div>
@@ -1451,7 +1457,7 @@ const ChecklistCard = ({
                     value={newItem}
                     onChange={(event) => onChangeNewItem(event.target.value)}
                     disabled={isSaving}
-                    placeholder='Add checklist item'
+                    placeholder={t('activityForm.addChecklist')}
                     className='min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/10 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60'
                 />
                 <button
@@ -1617,12 +1623,12 @@ const TripDetailsMessage = ({ message, isError = false }) => {
     )
 }
 
-const formatDate = (date) => {
+const formatDate = (date, language = 'en') => {
     if (!date) {
-        return 'Date not set'
+        return language === 'it' ? 'Data non impostata' : 'Date not set'
     }
 
-    return new Intl.DateTimeFormat('en', {
+    return new Intl.DateTimeFormat(language === 'it' ? 'it-IT' : 'en', {
         day: '2-digit',
         month: 'short',
         year: 'numeric',
@@ -1637,8 +1643,8 @@ const formatDateInput = (date) => {
     return new Date(date).toISOString().slice(0, 10)
 }
 
-const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en', {
+const formatCurrency = (amount, language = 'en') => {
+    return new Intl.NumberFormat(language === 'it' ? 'it-IT' : 'en', {
         currency: 'EUR',
         maximumFractionDigits: 0,
         style: 'currency',

@@ -13,13 +13,14 @@ import {
 } from 'lucide-react'
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
+import { useLanguage } from '../../i18n/language-context'
 import {
   clearSession,
   isAuthError,
   SESSION_EXPIRED_MESSAGE,
 } from '../../utils/auth'
 
-const steps = [
+const stepDefinitions = [
   {
     icon: Sparkles,
     eyebrow: 'Welcome to EasyTrip',
@@ -101,6 +102,11 @@ const steps = [
 ]
 
 const OnboardingTour = ({ onClose, onSessionExpired }) => {
+  const { t } = useLanguage()
+  const steps = stepDefinitions.map((definition, index) => {
+    const [eyebrow, title, description, points, hint] = t('onboarding.steps')[index]
+    return { ...definition, eyebrow, title, description, points, hint }
+  })
   const [currentStep, setCurrentStep] = useState(0)
   const [error, setError] = useState('')
   const [isSaving, setIsSaving] = useState(false)
@@ -133,7 +139,7 @@ const OnboardingTour = ({ onClose, onSessionExpired }) => {
       const data = responseText ? JSON.parse(responseText) : {}
 
       if (!response.ok) {
-        throw new Error(data.message || 'Unable to save onboarding progress')
+        throw new Error(data.message || t('onboarding.error'))
       }
 
       onClose()
@@ -168,7 +174,7 @@ const OnboardingTour = ({ onClose, onSessionExpired }) => {
               type='button'
               onClick={finishOnboarding}
               disabled={isSaving}
-              aria-label='Skip introduction'
+              aria-label={t('onboarding.skip')}
               className='flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-white/10 bg-white/10 text-slate-300 transition hover:bg-white/15 hover:text-white disabled:cursor-not-allowed disabled:opacity-60'
             >
               <X size={18} />
@@ -180,7 +186,7 @@ const OnboardingTour = ({ onClose, onSessionExpired }) => {
               {step.eyebrow}
             </p>
             <p className='text-xs font-bold uppercase tracking-wide text-slate-500'>
-              Step {currentStep + 1} of {steps.length}
+              {t('onboarding.step')} {currentStep + 1} {t('onboarding.of')} {steps.length}
             </p>
           </div>
           <h2 id='onboarding-title' className='mt-3 text-3xl font-black text-white sm:text-4xl'>
@@ -219,7 +225,7 @@ const OnboardingTour = ({ onClose, onSessionExpired }) => {
               disabled={currentStep === 0 || isSaving}
               className='inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/10 px-4 py-2.5 text-sm font-bold text-slate-200 transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-40'
             >
-              <ChevronLeft size={17} /> Back
+              <ChevronLeft size={17} /> {t('onboarding.back')}
             </button>
 
             {isLastStep ? (
@@ -229,7 +235,7 @@ const OnboardingTour = ({ onClose, onSessionExpired }) => {
                 disabled={isSaving}
                 className='inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-2.5 text-sm font-black text-slate-950 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60'
               >
-                {isSaving ? <LoadingSpinner label='Saving...' size={17} /> : 'Start planning'}
+                {isSaving ? <LoadingSpinner label={t('onboarding.saving')} size={17} /> : t('onboarding.finish')}
               </button>
             ) : (
               <button
@@ -242,12 +248,12 @@ const OnboardingTour = ({ onClose, onSessionExpired }) => {
                 disabled={isSaving}
                 className='inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-2.5 text-sm font-black text-slate-950 transition hover:-translate-y-0.5 hover:bg-cyan-200'
               >
-                Next <ChevronRight size={17} />
+                {t('onboarding.next')} <ChevronRight size={17} />
               </button>
             )}
           </div>
 
-          <div className='mt-6 flex justify-center gap-2' aria-label='Introduction progress'>
+          <div className='mt-6 flex justify-center gap-2' aria-label={t('onboarding.progress')}>
             {steps.map((tourStep, stepIndex) => (
               <span
                 key={tourStep.title}

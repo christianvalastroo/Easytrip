@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Plus, Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
+import { useLanguage } from '../../i18n/language-context'
 import {
   clearSession,
   isAuthError,
@@ -11,6 +12,7 @@ import {
 
 const Trips = () => {
   const navigate = useNavigate()
+  const { language, t } = useLanguage()
   const [trips, setTrips] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
@@ -46,7 +48,7 @@ const Trips = () => {
         const data = responseText ? JSON.parse(responseText) : []
 
         if (!response.ok) {
-          throw new Error(data.message || 'Trips unavailable')
+          throw new Error(data.message || t('trips.unavailable'))
         }
 
         setTrips(data)
@@ -58,7 +60,7 @@ const Trips = () => {
     }
 
     fetchTrips()
-  }, [navigate])
+  }, [navigate, t])
 
   const visibleTrips = useMemo(() => {
     const today = new Date()
@@ -101,21 +103,20 @@ const Trips = () => {
           className='flex cursor-pointer items-center gap-2 text-sm font-bold text-slate-400 transition hover:text-cyan-200'
         >
           <ArrowLeft size={17} />
-          Back to dashboard
+          {t('trips.backDashboard')}
         </button>
 
         <div className='rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-2xl shadow-slate-950/35 backdrop-blur-xl sm:p-6'>
           <div className='flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between'>
             <div>
               <p className='text-sm font-bold uppercase tracking-wide text-cyan-200'>
-                Travel archive
+                {t('trips.archive')}
               </p>
               <h1 className='mt-2 text-3xl font-black sm:text-4xl'>
-                My trips
+                {t('trips.title')}
               </h1>
               <p className='mt-3 max-w-2xl text-sm leading-6 text-slate-300'>
-                Search, filter and organize every trip in your private travel
-                workspace.
+                {t('trips.description')}
               </p>
             </div>
 
@@ -125,7 +126,7 @@ const Trips = () => {
               className='inline-flex w-fit cursor-pointer items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition-all duration-300 hover:-translate-y-0.5'
             >
               <Plus size={18} />
-              New trip
+              {t('trips.newTrip')}
             </button>
           </div>
         </div>
@@ -138,7 +139,7 @@ const Trips = () => {
                 type='search'
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
-                placeholder='Search by name or destination'
+                placeholder={t('trips.search')}
                 className='w-full bg-transparent text-sm font-semibold text-white outline-none placeholder:text-slate-500'
               />
             </label>
@@ -154,7 +155,7 @@ const Trips = () => {
                       : 'text-slate-300 hover:bg-white/10 hover:text-white'
                     }`}
                 >
-                  {filter}
+                  {t(`trips.${filter}`)}
                 </button>
               ))}
             </div>
@@ -164,15 +165,15 @@ const Trips = () => {
               onChange={(event) => setSortOrder(event.target.value)}
               className='cursor-pointer rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm font-bold text-white outline-none transition-all duration-300 focus:border-cyan-400/40'
             >
-              <option value='asc'>Date ascending</option>
-              <option value='desc'>Date descending</option>
+              <option value='asc'>{t('trips.ascending')}</option>
+              <option value='desc'>{t('trips.descending')}</option>
             </select>
           </div>
         </section>
 
         {isLoading ? (
           <TripsMessage
-            message={<LoadingSpinner label='Loading trips...' />}
+            message={<LoadingSpinner label={t('trips.loading')} />}
           />
         ) : error ? (
           <TripsMessage isError message={error} />
@@ -181,6 +182,7 @@ const Trips = () => {
             {visibleTrips.map((trip) => (
               <TripCard
                 key={trip._id}
+                language={language}
                 onOpenDetails={() => navigate(`/trips/${trip._id}`)}
                 trip={trip}
               />
@@ -190,8 +192,8 @@ const Trips = () => {
           <TripsMessage
             message={
               trips.length === 0
-                ? 'No trips yet. Create your first trip to get started.'
-                : 'No trips match your filters.'
+                ? t('trips.empty')
+                : t('trips.noResults')
             }
           />
         )}
@@ -200,7 +202,8 @@ const Trips = () => {
   )
 }
 
-const TripCard = ({ onOpenDetails, trip }) => {
+const TripCard = ({ language, onOpenDetails, trip }) => {
+  const { t } = useLanguage()
   return (
     <article className='overflow-hidden rounded-2xl border border-white/10 bg-slate-900/70 shadow-xl shadow-slate-950/25 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-400/30 hover:bg-slate-800/80 hover:shadow-cyan-500/10'>
       <div className='relative h-44 overflow-hidden bg-gradient-to-br from-blue-500 via-cyan-400 to-emerald-300 sm:h-56'>
@@ -220,7 +223,7 @@ const TripCard = ({ onOpenDetails, trip }) => {
       <div className='p-5'>
         <h2 className='truncate text-xl font-black text-white'>{trip.title}</h2>
         <p className='mt-2 text-sm font-semibold text-slate-400'>
-          {formatDate(trip.startDate)} - {formatDate(trip.endDate)}
+          {formatDate(trip.startDate, language, t)} - {formatDate(trip.endDate, language, t)}
         </p>
 
         {trip.notes && (
@@ -235,7 +238,7 @@ const TripCard = ({ onOpenDetails, trip }) => {
           className='mt-4 inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-cyan-100 transition-all duration-300 hover:border-cyan-400/30 hover:bg-white/15 hover:text-white'
         >
           <ArrowRight size={16} />
-          View details
+          {t('trips.details')}
         </button>
       </div>
     </article>
@@ -255,12 +258,12 @@ const TripsMessage = ({ message, isError = false }) => {
   )
 }
 
-const formatDate = (date) => {
+const formatDate = (date, language, t) => {
   if (!date) {
-    return 'Date not set'
+    return t('trips.dateMissing')
   }
 
-  return new Intl.DateTimeFormat('en', {
+  return new Intl.DateTimeFormat(language === 'it' ? 'it-IT' : 'en', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',

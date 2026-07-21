@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.jpg'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
+import { useLanguage } from '../../i18n/language-context'
 import {
     clearSession,
     isAuthError,
@@ -21,6 +22,7 @@ const initialFormData = {
 
 const CreateTrip = () => {
     const navigate = useNavigate()
+    const { t } = useLanguage()
     const [formData, setFormData] = useState(initialFormData)
     const [error, setError] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -46,7 +48,7 @@ const CreateTrip = () => {
         }
 
         if (new Date(formData.endDate) < new Date(formData.startDate)) {
-            setError('End date cannot be before start date')
+            setError(t('trips.create.dateError'))
             return
         }
 
@@ -83,7 +85,7 @@ const CreateTrip = () => {
             const data = responseText ? JSON.parse(responseText) : {}
 
             if (!response.ok) {
-                throw new Error(data.message || 'Trip creation failed')
+                throw new Error(data.message || t('trips.create.error'))
             }
 
             navigate('/trips')
@@ -111,19 +113,18 @@ const CreateTrip = () => {
                             className='inline-flex w-fit cursor-pointer items-center gap-2 rounded-2xl border border-white/20 bg-white/15 px-4 py-2 text-sm font-bold text-white backdrop-blur transition-all duration-300 hover:-translate-y-0.5 hover:bg-white/25'
                         >
                             <ArrowLeft size={17} />
-                            Back to dashboard
+                            {t('trips.backDashboard')}
                         </button>
 
                         <div>
                             <p className='text-sm font-bold uppercase tracking-wide text-cyan-200'>
-                                New itinerary
+                                {t('trips.create.eyebrow')}
                             </p>
                             <h1 className='mt-3 max-w-xl text-4xl font-black leading-tight sm:text-5xl'>
-                                Create your next trip
+                                {t('trips.create.heroTitle')}
                             </h1>
                             <p className='mt-4 max-w-md text-sm leading-6 text-slate-200 sm:text-base'>
-                                Add the core travel details now. Activities, notes and budget
-                                planning can grow from this trip.
+                                {t('trips.create.heroDescription')}
                             </p>
                         </div>
                     </div>
@@ -136,19 +137,19 @@ const CreateTrip = () => {
                     >
                         <div className='mb-6'>
                             <p className='text-sm font-bold uppercase tracking-wide text-cyan-200'>
-                                Trip details
+                                {t('trips.create.section')}
                             </p>
-                            <h2 className='mt-2 text-3xl font-black'>Plan basics</h2>
+                            <h2 className='mt-2 text-3xl font-black'>{t('trips.create.basics')}</h2>
                         </div>
 
                         <div className='grid gap-5 sm:grid-cols-2'>
                             <FormField
                                 icon={Plane}
                                 id='title'
-                                label='Title'
+                                label={t('trips.create.title')}
                                 name='title'
                                 onChange={handleChange}
-                                placeholder='Summer in Greece'
+                                placeholder={t('trips.create.titlePlaceholder')}
                                 required
                                 value={formData.title}
                             />
@@ -156,10 +157,10 @@ const CreateTrip = () => {
                             <FormField
                                 icon={MapPin}
                                 id='destination'
-                                label='Destination'
+                                label={t('trips.create.destination')}
                                 name='destination'
                                 onChange={handleChange}
-                                placeholder='Athens'
+                                placeholder={t('trips.create.destinationPlaceholder')}
                                 required
                                 value={formData.destination}
                             />
@@ -167,7 +168,7 @@ const CreateTrip = () => {
                             <FormField
                                 icon={CalendarDays}
                                 id='startDate'
-                                label='Start date'
+                                label={t('trips.create.startDate')}
                                 name='startDate'
                                 onChange={handleChange}
                                 required
@@ -178,7 +179,7 @@ const CreateTrip = () => {
                             <FormField
                                 icon={CalendarDays}
                                 id='endDate'
-                                label='End date'
+                                label={t('trips.create.endDate')}
                                 min={formData.startDate}
                                 name='endDate'
                                 onChange={handleChange}
@@ -190,7 +191,7 @@ const CreateTrip = () => {
                             <FormField
                                 icon={Wallet}
                                 id='budget'
-                                label='Budget'
+                                label={t('trips.create.budget')}
                                 min='0'
                                 name='budget'
                                 onChange={handleChange}
@@ -205,7 +206,7 @@ const CreateTrip = () => {
                                 htmlFor='notes'
                                 className='text-sm font-bold text-slate-200'
                             >
-                                Notes
+                                {t('trips.create.notes')}
                             </label>
                             <textarea
                                 id='notes'
@@ -213,7 +214,7 @@ const CreateTrip = () => {
                                 value={formData.notes}
                                 onChange={handleChange}
                                 rows='5'
-                                placeholder='Flights, hotel ideas, must-see places...'
+                                placeholder={t('trips.create.notesPlaceholder')}
                                 className='mt-2 w-full resize-none rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-500 focus:border-cyan-300 focus:bg-white/15'
                             />
                         </div>
@@ -230,7 +231,7 @@ const CreateTrip = () => {
                                 onClick={() => navigate('/dashboard')}
                                 className='cursor-pointer rounded-2xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-slate-200 transition-all duration-300 hover:border-cyan-400/30 hover:bg-white/15 hover:text-white'
                             >
-                                Cancel
+                                {t('trips.create.cancel')}
                             </button>
                             <button
                                 type='submit'
@@ -238,9 +239,9 @@ const CreateTrip = () => {
                                 className='inline-flex cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition-all duration-300 hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
                             >
                                 {isLoading ? (
-                                    <LoadingSpinner label='Creating...' size={18} />
+                                    <LoadingSpinner label={t('trips.create.loading')} size={18} />
                                 ) : (
-                                    'Create trip'
+                                    t('trips.create.submit')
                                 )}
                             </button>
                         </div>

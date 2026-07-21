@@ -14,6 +14,7 @@ import {
 import { useNavigate } from 'react-router-dom'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
+import { useLanguage } from '../../i18n/language-context'
 import {
     clearSession,
     isAuthError,
@@ -22,6 +23,7 @@ import {
 
 const Profile = () => {
     const navigate = useNavigate()
+    const { language, t } = useLanguage()
     const [user, setUser] = useState(null)
     const [formData, setFormData] = useState({ firstName: '', lastName: '' })
     const [isLoading, setIsLoading] = useState(true)
@@ -54,7 +56,7 @@ const Profile = () => {
                 const data = responseText ? JSON.parse(responseText) : null
 
                 if (!response.ok) {
-                    throw new Error(data?.message || 'Profile unavailable')
+                    throw new Error(data?.message || t('profile.unavailable'))
                 }
 
                 setUser(data)
@@ -70,7 +72,7 @@ const Profile = () => {
         }
 
         fetchUser()
-    }, [navigate])
+    }, [navigate, t])
 
     const handleChange = (event) => {
         const { name, value } = event.target
@@ -93,7 +95,7 @@ const Profile = () => {
         setSuccess('')
 
         if (!formData.firstName.trim()) {
-            setError('First name is required')
+            setError(t('profile.required'))
             return
         }
 
@@ -125,7 +127,7 @@ const Profile = () => {
             const data = responseText ? JSON.parse(responseText) : null
 
             if (!response.ok) {
-                throw new Error(data?.message || 'Unable to update profile')
+                throw new Error(data?.message || t('profile.updateError'))
             }
 
             setUser(data.user)
@@ -133,7 +135,7 @@ const Profile = () => {
                 firstName: data.user.firstName || '',
                 lastName: data.user.lastName || '',
             })
-            setSuccess(data.message || 'Profile updated successfully')
+            setSuccess(data.message || t('profile.updated'))
             setIsEditing(false)
             window.dispatchEvent(new Event('auth-change'))
         } catch (saveError) {
@@ -157,12 +159,12 @@ const Profile = () => {
         const allowedTypes = ['image/jpeg', 'image/png', 'image/webp']
 
         if (!allowedTypes.includes(file.type)) {
-            setAvatarError('Choose a JPEG, PNG or WebP image')
+            setAvatarError(t('profile.imageType'))
             return
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            setAvatarError('Image size cannot exceed 5 MB')
+            setAvatarError(t('profile.imageSize'))
             return
         }
 
@@ -193,11 +195,11 @@ const Profile = () => {
             const data = responseText ? JSON.parse(responseText) : null
 
             if (!response.ok) {
-                throw new Error(data?.message || 'Unable to upload avatar')
+                throw new Error(data?.message || t('profile.uploadError'))
             }
 
             setUser(data.user)
-            setAvatarSuccess(data.message || 'Avatar updated successfully')
+            setAvatarSuccess(data.message || t('profile.avatarUpdated'))
             window.dispatchEvent(new Event('auth-change'))
         } catch (uploadError) {
             setAvatarError(uploadError.message)
@@ -209,22 +211,22 @@ const Profile = () => {
     if (isLoading) {
         return (
             <ProfileMessage
-                message={<LoadingSpinner label='Loading profile...' />}
+                message={<LoadingSpinner label={t('profile.loading')} />}
             />
         )
     }
 
     if (!user) {
-        return <ProfileMessage isError message={error || 'Profile unavailable'} />
+        return <ProfileMessage isError message={error || t('profile.unavailable')} />
     }
 
     const fullName = [user.firstName, user.lastName].filter(Boolean).join(' ')
     const initials = `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`.toUpperCase() || 'U'
     const memberSince = user.createdAt
-        ? new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric' }).format(
+        ? new Intl.DateTimeFormat(language === 'it' ? 'it-IT' : 'en', { month: 'long', year: 'numeric' }).format(
             new Date(user.createdAt),
         )
-        : 'Not available'
+        : t('profile.notAvailable')
 
     return (
         <main className='min-h-[calc(100vh-65px)] bg-slate-950 px-4 py-8 text-white sm:px-6 lg:px-8'>
@@ -235,7 +237,7 @@ const Profile = () => {
                     className='mb-6 flex cursor-pointer items-center gap-2 text-sm font-bold text-slate-400 transition hover:text-cyan-200'
                 >
                     <ArrowLeft size={17} />
-                    Back to dashboard
+                    {t('trips.backDashboard')}
                 </button>
 
                 <section className='overflow-hidden rounded-[2rem] border border-white/10 bg-slate-900/70 shadow-2xl shadow-slate-950/40 backdrop-blur-xl'>
@@ -261,8 +263,8 @@ const Profile = () => {
                                     <label
                                         htmlFor='avatar-upload'
                                         aria-disabled={isUploadingAvatar}
-                                        aria-label='Change profile photo'
-                                        title='Change profile photo'
+                                        aria-label={t('profile.photo')}
+                                        title={t('profile.photo')}
                                         className={`absolute bottom-2 right-2 inline-flex h-10 w-10 items-center justify-center rounded-full border-2 border-slate-900 bg-cyan-300 text-slate-950 shadow-lg shadow-slate-950/40 transition hover:scale-105 hover:bg-cyan-200 ${isUploadingAvatar
                                             ? 'cursor-not-allowed opacity-60'
                                             : 'cursor-pointer'
@@ -270,7 +272,7 @@ const Profile = () => {
                                     >
                                         {isUploadingAvatar ? (
                                             <LoadingSpinner
-                                                label='Uploading profile photo'
+                                                label={t('profile.uploading')}
                                                 showLabel={false}
                                                 size={16}
                                             />
@@ -289,10 +291,10 @@ const Profile = () => {
                                 </div>
                                 <div className='pb-1'>
                                     <p className='text-sm font-bold uppercase tracking-[0.2em] text-cyan-300'>
-                                        My profile
+                                        {t('profile.title')}
                                     </p>
                                     <h1 className='mt-1 text-3xl font-black tracking-tight sm:text-4xl'>
-                                        {fullName || 'EasyTrip user'}
+                                        {fullName || t('common.user')}
                                     </h1>
                                     <p className='mt-2 flex items-center gap-2 text-sm text-slate-400'>
                                         <Mail size={15} /> {user.email}
@@ -310,7 +312,7 @@ const Profile = () => {
                                     }}
                                     className='flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 shadow-lg shadow-cyan-500/20 transition hover:-translate-y-0.5'
                                 >
-                                    <Pencil size={16} /> Edit profile
+                                    <Pencil size={16} /> {t('profile.edit')}
                                 </button>
                             )}
                         </div>
@@ -332,9 +334,9 @@ const Profile = () => {
                 <div className='mt-6 grid gap-6 lg:grid-cols-[1fr_300px]'>
                     <section className='rounded-3xl border border-white/10 bg-slate-900/70 p-5 shadow-xl shadow-slate-950/30 sm:p-7'>
                         <div className='mb-6'>
-                            <h2 className='text-xl font-black'>Personal information</h2>
+                            <h2 className='text-xl font-black'>{t('profile.personal')}</h2>
                             <p className='mt-1 text-sm text-slate-400'>
-                                Your personal details for your EasyTrip account.
+                                {t('profile.personalText')}
                             </p>
                         </div>
 
@@ -353,14 +355,14 @@ const Profile = () => {
                         <form onSubmit={handleSubmit} className='grid gap-5 sm:grid-cols-2'>
                             <ProfileField
                                 disabled={!isEditing}
-                                label='First name'
+                                label={t('profile.firstName')}
                                 name='firstName'
                                 onChange={handleChange}
                                 value={formData.firstName}
                             />
                             <ProfileField
                                 disabled={!isEditing}
-                                label='Last name'
+                                label={t('profile.lastName')}
                                 name='lastName'
                                 onChange={handleChange}
                                 value={formData.lastName}
@@ -368,7 +370,7 @@ const Profile = () => {
 
                             <div className='sm:col-span-2'>
                                 <label className='mb-2 block text-sm font-bold text-slate-300' htmlFor='email'>
-                                    Email address
+                                    {t('profile.email')}
                                 </label>
                                 <div className='relative'>
                                     <AtSign className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-500' size={17} />
@@ -379,7 +381,7 @@ const Profile = () => {
                                         className='w-full rounded-2xl border border-white/10 bg-slate-950/60 py-3 pl-11 pr-4 text-sm text-slate-400 outline-none'
                                     />
                                 </div>
-                                <p className='mt-2 text-xs text-slate-500'>The email address cannot be changed.</p>
+                                <p className='mt-2 text-xs text-slate-500'>{t('profile.emailLocked')}</p>
                             </div>
 
                             {isEditing && (
@@ -389,7 +391,7 @@ const Profile = () => {
                                         onClick={handleCancel}
                                         className='flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-white/15 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/10'
                                     >
-                                        <X size={16} /> Cancel
+                                        <X size={16} /> {t('profile.cancel')}
                                     </button>
                                     <button
                                         type='submit'
@@ -397,10 +399,10 @@ const Profile = () => {
                                         className='flex cursor-pointer items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3 text-sm font-black text-slate-950 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60'
                                     >
                                         {isSaving ? (
-                                            <LoadingSpinner label='Saving...' size={16} />
+                                            <LoadingSpinner label={t('profile.saving')} size={16} />
                                         ) : (
                                             <>
-                                                <Save size={16} /> Save changes
+                                                <Save size={16} /> {t('profile.save')}
                                             </>
                                         )}
                                     </button>
@@ -410,8 +412,8 @@ const Profile = () => {
                     </section>
 
                     <aside className='space-y-4'>
-                        <ProfileInfoCard icon={CalendarDays} label='Member since' value={memberSince} />
-                        <ProfileInfoCard icon={UserRound} label='Account status' value='Active' />
+                        <ProfileInfoCard icon={CalendarDays} label={t('profile.memberSince')} value={memberSince} />
+                        <ProfileInfoCard icon={UserRound} label={t('profile.status')} value={t('profile.active')} />
                     </aside>
                 </div>
             </div>
