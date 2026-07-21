@@ -35,7 +35,8 @@ const registerUser = async (req, res, next) => {
 
         await sendWelcomeEmail({
             email: user.email,
-            firstName: user.firstName
+            firstName: user.firstName,
+            language: req.body.language
         }).catch((error) => {
             console.error("Unable to send welcome email:", error.message)
         })
@@ -106,7 +107,8 @@ const forgotPassword = async (req, res, next) => {
                 await sendPasswordResetEmail({
                     email: user.email,
                     firstName: user.firstName,
-                    resetToken
+                    resetToken,
+                    language: req.body.language
                 })
             } catch (error) {
                 user.passwordResetToken = undefined

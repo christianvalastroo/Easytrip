@@ -5,7 +5,7 @@ import { API_URL } from '../../config/api'
 import { useLanguage } from '../../i18n/language-context'
 
 const ForgotPassword = () => {
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
@@ -21,7 +21,7 @@ const ForgotPassword = () => {
       const response = await fetch(`${API_URL}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, language }),
       })
       const data = await response.json()
 
