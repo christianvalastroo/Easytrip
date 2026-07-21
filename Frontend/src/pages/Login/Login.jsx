@@ -3,10 +3,12 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.jpg'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
+import { useLanguage } from '../../i18n/language-context'
 
 const Login = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useLanguage()
   const sessionMessage = location.state?.message
   const [formData, setFormData] = useState({
     email: '',
@@ -42,7 +44,7 @@ const Login = () => {
       const data = responseText ? JSON.parse(responseText) : {}
 
       if (!response.ok) {
-        throw new Error(data.message || 'Login failed')
+        throw new Error(data.message || t('auth.login.error'))
       }
 
       localStorage.setItem('token', data.token)
@@ -71,7 +73,7 @@ const Login = () => {
                 EasyTrip
               </p>
               <h1 className='mt-3 max-w-md text-3xl font-black leading-tight sm:text-4xl'>
-                Sign in and keep planning your next trip.
+                {t('auth.login.hero')}
               </h1>
             </div>
           </div>
@@ -81,13 +83,13 @@ const Login = () => {
           <div className='mx-auto max-w-md rounded-3xl border border-white/10 bg-white/[0.08] p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-8'>
             <div>
               <p className='text-sm font-bold uppercase tracking-wide text-cyan-200'>
-                Welcome back
+                {t('auth.login.eyebrow')}
               </p>
               <h2 className='mt-3 text-4xl font-black tracking-tight'>
-                Login
+                {t('auth.login.title')}
               </h2>
               <p className='mt-3 text-sm leading-6 text-slate-300'>
-                Enter your credentials to return to your dashboard.
+                {t('auth.login.description')}
               </p>
             </div>
 
@@ -103,7 +105,7 @@ const Login = () => {
                   htmlFor='email'
                   className='text-sm font-bold text-slate-200'
                 >
-                  Email
+                  {t('auth.email')}
                 </label>
                 <input
                   id='email'
@@ -111,7 +113,7 @@ const Login = () => {
                   type='email'
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder='Enter your email'
+                  placeholder={t('auth.emailPlaceholder')}
                   required
                   className='mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:bg-white/15'
                 />
@@ -123,13 +125,13 @@ const Login = () => {
                     htmlFor='password'
                     className='text-sm font-bold text-slate-200'
                   >
-                    Password
+                    {t('auth.password')}
                   </label>
                   <Link
                     to='/forgot-password'
                     className='text-xs font-bold text-cyan-200 transition hover:text-white'
                   >
-                    Forgot password?
+                    {t('auth.login.forgot')}
                   </Link>
                 </div>
                 <input
@@ -138,7 +140,7 @@ const Login = () => {
                   type='password'
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder='Enter your password'
+                  placeholder={t('auth.passwordPlaceholder')}
                   required
                   className='mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:bg-white/15'
                 />
@@ -156,20 +158,20 @@ const Login = () => {
                 className='inline-flex w-full cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3.5 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
               >
                 {isLoading ? (
-                  <LoadingSpinner label='Signing in...' size={18} />
+                  <LoadingSpinner label={t('auth.login.loading')} size={18} />
                 ) : (
-                  'Login'
+                  t('auth.login.submit')
                 )}
               </button>
             </form>
 
             <p className='mt-6 text-center text-sm text-slate-300'>
-              Do not have an account?{' '}
+              {t('auth.login.noAccount')}{' '}
               <Link
                 to='/register'
                 className='font-bold text-cyan-200 transition hover:text-white'
               >
-                Sign up
+                {t('common.signUp')}
               </Link>
             </p>
           </div>

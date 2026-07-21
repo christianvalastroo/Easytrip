@@ -3,9 +3,11 @@ import { Link, useNavigate } from 'react-router-dom'
 import homeHeroImage from '../../assets/home-hero.jpg'
 import LoadingSpinner from '../../components/LoadingSpinner/LoadingSpinner'
 import { API_URL } from '../../config/api'
+import { useLanguage } from '../../i18n/language-context'
 
 const Register = () => {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -31,7 +33,7 @@ const Register = () => {
 
     try {
       if (formData.password.length < 8) {
-        throw new Error('Password must be at least 8 characters long')
+        throw new Error(t('auth.register.shortPassword'))
       }
 
       const response = await fetch(`${API_URL}/auth/register`, {
@@ -46,7 +48,7 @@ const Register = () => {
       const data = responseText ? JSON.parse(responseText) : {}
 
       if (!response.ok) {
-        throw new Error(data.message || 'Registration failed')
+        throw new Error(data.message || t('auth.register.error'))
       }
 
       localStorage.setItem('token', data.token)
@@ -54,7 +56,7 @@ const Register = () => {
 
       navigate('/dashboard', {
         state: {
-          message: `Welcome to EasyTrip, ${data.user.firstName}!`,
+          message: `${t('auth.register.welcome')}, ${data.user.firstName}!`,
         },
       })
     } catch (error) {
@@ -80,7 +82,7 @@ const Register = () => {
                 EasyTrip Planner
               </p>
               <h2 className='mt-3 max-w-md text-3xl font-black leading-tight sm:text-4xl'>
-                Start building your next trip.
+                {t('auth.register.hero')}
               </h2>
             </div>
           </div>
@@ -90,13 +92,13 @@ const Register = () => {
           <div className='mx-auto max-w-md rounded-3xl border border-white/10 bg-white/[0.08] p-6 shadow-2xl shadow-slate-950/30 backdrop-blur-xl sm:p-8'>
             <div>
               <p className='text-sm font-bold uppercase tracking-wide text-cyan-200'>
-                Create account
+                {t('auth.register.eyebrow')}
               </p>
               <h1 className='mt-3 text-4xl font-black tracking-tight'>
-                Sign up
+                {t('auth.register.title')}
               </h1>
               <p className='mt-3 text-sm leading-6 text-slate-300'>
-                Create your profile to start saving trips and activities.
+                {t('auth.register.description')}
               </p>
             </div>
 
@@ -107,7 +109,7 @@ const Register = () => {
                     htmlFor='firstName'
                     className='text-sm font-bold text-slate-200'
                   >
-                    First name
+                    {t('auth.register.firstName')}
                   </label>
                   <input
                     id='firstName'
@@ -115,7 +117,7 @@ const Register = () => {
                     type='text'
                     value={formData.firstName}
                     onChange={handleChange}
-                    placeholder='Your first name'
+                    placeholder={t('auth.register.firstNamePlaceholder')}
                     required
                     className='mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:bg-white/15'
                   />
@@ -126,7 +128,7 @@ const Register = () => {
                     htmlFor='lastName'
                     className='text-sm font-bold text-slate-200'
                   >
-                    Last name
+                    {t('auth.register.lastName')}
                   </label>
                   <input
                     id='lastName'
@@ -134,7 +136,7 @@ const Register = () => {
                     type='text'
                     value={formData.lastName}
                     onChange={handleChange}
-                    placeholder='Your last name'
+                    placeholder={t('auth.register.lastNamePlaceholder')}
                     className='mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:bg-white/15'
                   />
                 </div>
@@ -145,7 +147,7 @@ const Register = () => {
                   htmlFor='email'
                   className='text-sm font-bold text-slate-200'
                 >
-                  Email
+                  {t('auth.email')}
                 </label>
                 <input
                   id='email'
@@ -153,7 +155,7 @@ const Register = () => {
                   type='email'
                   value={formData.email}
                   onChange={handleChange}
-                  placeholder='Enter your email'
+                  placeholder={t('auth.emailPlaceholder')}
                   required
                   className='mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:bg-white/15'
                 />
@@ -164,7 +166,7 @@ const Register = () => {
                   htmlFor='password'
                   className='text-sm font-bold text-slate-200'
                 >
-                  Password
+                  {t('auth.password')}
                 </label>
                 <input
                   id='password'
@@ -172,7 +174,7 @@ const Register = () => {
                   type='password'
                   value={formData.password}
                   onChange={handleChange}
-                  placeholder='At least 8 characters'
+                  placeholder={t('auth.register.passwordPlaceholder')}
                   minLength='8'
                   required
                   className='mt-2 w-full rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-400 focus:border-cyan-300 focus:bg-white/15'
@@ -191,20 +193,20 @@ const Register = () => {
                 className='inline-flex w-full cursor-pointer items-center justify-center rounded-2xl bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 px-5 py-3.5 text-sm font-black text-slate-950 shadow-xl shadow-cyan-500/25 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70'
               >
                 {isLoading ? (
-                  <LoadingSpinner label='Creating account...' size={18} />
+                  <LoadingSpinner label={t('auth.register.loading')} size={18} />
                 ) : (
-                  'Sign up'
+                  t('auth.register.submit')
                 )}
               </button>
             </form>
 
             <p className='mt-6 text-center text-sm text-slate-300'>
-              Already have an account?{' '}
+              {t('auth.register.hasAccount')}{' '}
               <Link
                 to='/login'
                 className='font-bold text-cyan-200 transition hover:text-white'
               >
-                Login
+                {t('common.login')}
               </Link>
             </p>
           </div>
