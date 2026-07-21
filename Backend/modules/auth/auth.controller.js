@@ -33,7 +33,7 @@ const registerUser = async (req, res, next) => {
 
         const token = createSessionToken(user._id)
 
-        await sendWelcomeEmail({
+        sendWelcomeEmail({
             email: user.email,
             firstName: user.firstName,
             language: req.body.language
