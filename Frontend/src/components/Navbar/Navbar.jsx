@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react'
 import {
+    LayoutDashboard,
     LogOut,
     Map,
-    Menu,
     Plane,
     Settings,
     UserRound,
-    X,
 } from 'lucide-react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { API_URL } from '../../config/api'
@@ -84,7 +83,8 @@ const Navbar = () => {
     const navLinks = []
 
     const mobilePrivateLinks = [
-        { path: '/dashboard', label: t('navigation.myTrips'), icon: Map },
+        { path: '/dashboard', label: t('dashboard.dashboard'), icon: LayoutDashboard },
+        { path: '/trips', label: t('navigation.myTrips'), icon: Map },
         { path: '/profile', label: t('common.profile'), icon: UserRound },
         { path: '/settings', label: t('common.settings'), icon: Settings },
     ]
@@ -218,18 +218,39 @@ const Navbar = () => {
 
                 <button
                     type='button'
-                    className='flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-white md:hidden'
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className='relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-white transition duration-300 hover:bg-white/15 md:hidden'
+                    onClick={() => setIsMenuOpen((currentValue) => !currentValue)}
                     aria-label={t('navigation.toggleMenu')}
                     aria-expanded={isMenuOpen}
                 >
-                    {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                    <span
+                        className={`absolute h-0.5 w-5 rounded-full bg-current transition-transform duration-500 ease-out ${
+                            isMenuOpen ? 'translate-y-0 rotate-45' : '-translate-y-1.5 rotate-0'
+                        }`}
+                    />
+                    <span
+                        className={`absolute h-0.5 w-5 rounded-full bg-current transition-all duration-300 ease-out ${
+                            isMenuOpen ? 'scale-x-0 opacity-0' : 'scale-x-100 opacity-100'
+                        }`}
+                    />
+                    <span
+                        className={`absolute h-0.5 w-5 rounded-full bg-current transition-transform duration-500 ease-out ${
+                            isMenuOpen ? 'translate-y-0 -rotate-45' : 'translate-y-1.5 rotate-0'
+                        }`}
+                    />
                 </button>
             </nav>
 
-            {isMenuOpen && (
-                <div className='border-t border-white/10 bg-slate-950/95 px-4 py-4 shadow-xl shadow-slate-950/30 md:hidden'>
-                    <div className='flex flex-col gap-4'>
+            <div
+                aria-hidden={!isMenuOpen}
+                className={`absolute left-0 right-0 top-full grid overflow-hidden bg-slate-950/95 shadow-2xl shadow-slate-950/50 backdrop-blur-xl transition-[grid-template-rows,opacity,transform,border-color] duration-500 ease-in-out md:hidden ${
+                    isMenuOpen
+                        ? 'grid-rows-[1fr] translate-y-0 border-t border-white/10 opacity-100'
+                        : 'pointer-events-none grid-rows-[0fr] -translate-y-3 border-t border-transparent opacity-0'
+                }`}
+            >
+                <div className='min-h-0 overflow-hidden'>
+                    <div className='flex flex-col gap-4 px-4 py-4'>
                         {(token ? mobilePrivateLinks : navLinks).map((link) => (
                             <MobileNavLink
                                 key={link.label}
@@ -295,7 +316,7 @@ const Navbar = () => {
                         )}
                     </div>
                 </div>
-            )}
+            </div>
         </header>
     )
 }
