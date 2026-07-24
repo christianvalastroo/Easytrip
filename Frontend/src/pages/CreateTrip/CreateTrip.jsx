@@ -88,7 +88,7 @@ const CreateTrip = () => {
                 throw new Error(data.message || t('trips.create.error'))
             }
 
-            navigate('/trips')
+            navigate(`/trips/${data.trip._id}`)
         } catch (error) {
             setError(error.message)
         } finally {
